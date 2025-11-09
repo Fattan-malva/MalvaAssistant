@@ -1,0 +1,12 @@
+{
+  "name": "malva-chat-web",
+  "version": "1.0.0",
+  "description": "Simple Express.js web app for AI chat with dark theme",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
