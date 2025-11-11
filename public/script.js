@@ -43,8 +43,10 @@ class AIChat {
         const message = this.userInput.value.trim();
         if (!message) return;
 
-        // Tambah pesan user ke chat
-        this.addMessage(message, 'user');
+        // Tambah pesan user ke chat (bersama id)
+        const userMsgDiv = this.addMessage(message, 'user', { id: this.generateId() });
+        const userId = userMsgDiv.dataset.id;
+
         this.userInput.value = '';
         this.autoResizeTextarea(); // Reset height after sending
 
@@ -65,12 +67,12 @@ class AIChat {
                 botReply = typeof response === 'object' ? response.response : response;
             }
 
-            // Tambah response AI ke chat
-            this.addMessage(botReply, 'bot');
+            // Tambah response AI ke chat dan tandai reply-to userId
+            this.addMessage(botReply, 'bot', { replyTo: userId });
 
         } catch (error) {
             console.error('Error:', error);
-            this.addMessage('Oops, ada error nih. Coba lagi ya!', 'bot');
+            this.addMessage('Oops, ada error nih. Coba lagi ya!', 'bot', { replyTo: userId });
         } finally {
             this.showLoading(false);
         }
@@ -81,7 +83,9 @@ class AIChat {
         return identityKeywords.some(keyword => message.toLowerCase().includes(keyword));
     }
 
-
+    generateId() {
+        return 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    }
     
     async callAPI(prompt) {
         const response = await fetch('/chat', {
@@ -96,19 +100,33 @@ class AIChat {
 
         return await response.json();
     }
-    
-    addMessage(text, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `message ${sender}-message`;
 
-        const contentDiv = document.createElement('div');
-        contentDiv.className = 'message-content';
-        // Parse **bold** as <strong>bold</strong>, *italic* as bold yellow, ### headings as bold light green, and tables
+    formatMessageHtml(text) {
         let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
         html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
         html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
         html = this.parseMarkdownTable(html);
+        return html;
+    }
+    
+    addMessage(text, sender, options = {}) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `message ${sender}-message`;
+
+        // If user message, set id; if bot message, set replyTo if provided
+        if (sender === 'user') {
+            const id = options.id || this.generateId();
+            messageDiv.dataset.id = id;
+        }
+        if (sender === 'bot' && options.replyTo) {
+            messageDiv.dataset.replyTo = options.replyTo;
+        }
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'message-content';
+
+        const html = this.formatMessageHtml(text);
         contentDiv.innerHTML = html;
 
         // Add action buttons
@@ -129,7 +147,7 @@ class AIChat {
             const editButton = document.createElement('button');
             editButton.className = 'action-btn edit-btn';
             editButton.title = 'Edit message';
-            editButton.innerHTML = '<i class="fas fa-edit"></i>';
+            editButton.innerHTML = '<i class="fa-solid fa-pencil"></i>';
             editButton.addEventListener('click', () => this.editMessage(messageDiv, contentDiv, text));
             actionsDiv.appendChild(editButton);
         }
@@ -139,6 +157,7 @@ class AIChat {
         this.chatMessages.appendChild(messageDiv);
 
         this.scrollToBottom();
+        return messageDiv;
     }
 
     parseMarkdownTable(text) {
@@ -271,30 +290,64 @@ class AIChat {
         });
     }
 
-    saveEdit(messageDiv, contentDiv, newText, originalText) {
+    async saveEdit(messageDiv, contentDiv, newText, originalText) {
         if (newText.trim() && newText !== originalText) {
-            // Update the message content
-            let html = newText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-            html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
-            html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
-            html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
-            html = this.parseMarkdownTable(html);
+            // Update the message content visually
+            const html = this.formatMessageHtml(newText);
             contentDiv.innerHTML = html;
 
-            // Optionally, you could resend the message to get a new AI response
-            // But for now, just update the display
+            // If this is a user message that has an id, re-request bot response and update it
+            const userId = messageDiv.dataset.id;
+            if (userId) {
+                await this.updateBotResponseForUser(userId, newText);
+            }
         } else {
             this.cancelEdit(contentDiv, originalText);
         }
     }
 
     cancelEdit(contentDiv, originalText) {
-        let html = originalText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
-        html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
-        html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
-        html = this.parseMarkdownTable(html);
+        const html = this.formatMessageHtml(originalText);
         contentDiv.innerHTML = html;
+    }
+
+    async updateBotResponseForUser(userId, prompt) {
+        // show loading indicator
+        this.showLoading(true);
+        try {
+            // Call API for new response
+            let botReply;
+            if (this.isIdentityQuestion(prompt)) {
+                botReply = this.rules?.identity_response?.response || 'Saya Malva Assistant, dibuat oleh Fattan Malva. Lumayan keren ya? Apa yang bisa saya bantu hari ini?';
+            } else {
+                const response = await this.callAPI(prompt);
+                botReply = typeof response === 'object' ? response.response : response;
+            }
+
+            // Find existing bot messages that reply to this userId
+            const existingBotMsgs = Array.from(this.chatMessages.querySelectorAll('.bot-message')).filter(m => m.dataset.replyTo === userId);
+
+            if (existingBotMsgs.length > 0) {
+                // Update the first bot reply's content (remove others)
+                const first = existingBotMsgs[0];
+                const contentDiv = first.querySelector('.message-content');
+                if (contentDiv) contentDiv.innerHTML = this.formatMessageHtml(botReply);
+
+                // remove any additional bot replies that belong to same user (cleanup)
+                for (let i = 1; i < existingBotMsgs.length; i++) {
+                    existingBotMsgs[i].remove();
+                }
+            } else {
+                // No existing reply found, append new bot message linked to userId
+                this.addMessage(botReply, 'bot', { replyTo: userId });
+            }
+
+            this.scrollToBottom();
+        } catch (err) {
+            console.error('Failed to update bot response for edited message:', err);
+        } finally {
+            this.showLoading(false);
+        }
     }
 
     scrollToBottom() {

@@ -478,3 +478,31 @@ h1 {
         height: 40px;
     }
 }
+
+/* Edit input styling (dark theme, no white border) */
+.edit-input {
+    width: 100%;
+    background: #2a2a4e;
+    color: #e0e0e0;
+    border: 1px solid #3a3a5e;
+    border-radius: 8px;
+    padding: 8px;
+    resize: none;
+    box-shadow: none;
+    outline: none;
+    font-size: 14px;
+    line-height: 1.4;
+    caret-color: #a855f7; /* purple caret to match theme */
+}
+
+/* Focus state */
+.edit-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 8px rgba(102, 126, 234, 0.12);
+    outline: none;
+}
+
+/* Placeholder color */
+.edit-input::placeholder {
+    color: #9aa0b4;
+}
