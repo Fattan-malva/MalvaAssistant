@@ -246,6 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start typing animation for title
     const titleSpan = document.querySelector('.malva-title span');
     if (titleSpan) {
-        new TypingAnimation(titleSpan, "Hi, I'm Malva Assistant");
+        new TypingAnimation(titleSpan, " Hi, I'm Malva Assistant ");
     }
 });
