@@ -23,12 +23,18 @@ class AIChat {
     initializeEventListeners() {
         // Kirim pesan ketika tombol diklik
         this.sendButton.addEventListener('click', () => this.sendMessage());
-        
-        // Kirim pesan ketika tekan Enter
-        this.userInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.sendMessage();
+
+        // Kirim pesan ketika tekan Enter (tanpa Shift)
+        this.userInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.sendMessage();
+            }
         });
-        
+
+        // Auto-resize textarea
+        this.userInput.addEventListener('input', () => this.autoResizeTextarea());
+
         // Auto-focus input
         this.userInput.focus();
     }
@@ -40,6 +46,7 @@ class AIChat {
         // Tambah pesan user ke chat
         this.addMessage(message, 'user');
         this.userInput.value = '';
+        this.autoResizeTextarea(); // Reset height after sending
 
         // Tampilkan loading
         this.showLoading(true);
@@ -185,12 +192,59 @@ class AIChat {
         this.sendButton.disabled = show;
     }
     
+    autoResizeTextarea() {
+        this.userInput.style.height = 'auto';
+        this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+    }
+
     scrollToBottom() {
         this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+    }
+}
+
+// Typing animation for title
+class TypingAnimation {
+    constructor(element, text, speed = 100, delay = 2000) {
+        this.element = element;
+        this.fullText = text;
+        this.speed = speed;
+        this.delay = delay;
+        this.index = 0;
+        this.isDeleting = false;
+        this.type();
+    }
+
+    type() {
+        const currentText = this.isDeleting
+            ? this.fullText.substring(0, this.index--)
+            : this.fullText.substring(0, this.index++);
+
+        this.element.textContent = currentText;
+
+        let timeout;
+        if (!this.isDeleting && this.index === this.fullText.length) {
+            // Pause at end
+            timeout = this.delay;
+            this.isDeleting = true;
+        } else if (this.isDeleting && this.index === 0) {
+            // Pause at start
+            timeout = this.delay;
+            this.isDeleting = false;
+        } else {
+            timeout = this.speed;
+        }
+
+        setTimeout(() => this.type(), timeout);
     }
 }
 
 // Inisialisasi chat ketika halaman dimuat
 document.addEventListener('DOMContentLoaded', () => {
     new AIChat();
+
+    // Start typing animation for title
+    const titleSpan = document.querySelector('.malva-title span');
+    if (titleSpan) {
+        new TypingAnimation(titleSpan, "Hi, I'm Malva Assistant");
+    }
 });

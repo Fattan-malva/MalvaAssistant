@@ -1,16 +1,23 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <title>Malva</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
     <div class="container">
-        <h1>Malva Assistant</h1>
-        
+        <h1 class="malva-title">
+            <img src="ai.png" alt="Malva Icon" class="malva-icon">
+            <span>Hi, I'm Malva Assistant</span>
+        </h1>
+
+
         <div class="chat-container">
             <div id="chat-messages" class="chat-messages">
                 <div class="message bot-message">
@@ -19,22 +26,20 @@
                     </div> -->
                 </div>
             </div>
-            
+
             <div class="input-container">
-                <input 
-                    type="text" 
-                    id="user-input" 
-                    placeholder="Message Malva..."
-                    autocomplete="off"
-                >
-                <button id="send-button">Send</button>
+                <textarea id="user-input" placeholder="Message Malva..." autocomplete="off" rows="1"></textarea>
+                <button id="send-button" title="Send message">
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
             </div>
         </div>
-        
+
         <!-- Loading moved inside chat-messages -->
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
