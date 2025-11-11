@@ -56,11 +56,6 @@ class AIChat {
 
                 // Ambil hanya isi respon dari field "response"
                 botReply = typeof response === 'object' ? response.response : response;
-
-                // Apply Gen Z style if rules loaded
-                if (this.rules?.speaking_style) {
-                    botReply = this.applyGenZStyle(botReply);
-                }
             }
 
             // Tambah response AI ke chat
@@ -75,19 +70,11 @@ class AIChat {
     }
 
     isIdentityQuestion(message) {
-        const identityKeywords = ['siapa kamu', 'who are you', 'apa kamu', 'kamu siapa'];
+        const identityKeywords = this.rules?.identity_response?.identity_keywords || ['siapa kamu', 'who are you', 'apa kamu', 'kamu siapa', 'who you', 'kamu apa', 'siapa anda', 'who is you', 'what are you', 'apa anda', 'who am i talking to', 'what is your name', 'nama kamu', 'siapa nama kamu'];
         return identityKeywords.some(keyword => message.toLowerCase().includes(keyword));
     }
 
-    applyGenZStyle(text) {
-        // Simple post-processing to make it more Gen Z
-        // This is basic; in a real scenario, the API should handle it
-        text = text.replace(/^Saya adalah/, 'Gue adalah');
-        text = text.replace(/Anda/, 'Kamu');
-        text = text.replace(/Apa yang bisa saya bantu/, 'Apa yang bisa gue bantu');
-        // Add more transformations as needed
-        return text;
-    }
+
     
     async callAPI(prompt) {
         const response = await fetch('/chat', {

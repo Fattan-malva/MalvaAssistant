@@ -36,10 +36,8 @@ app.post('/chat', async (req, res) => {
     }
 
     // Check if it's an identity question using rules
-    if (rules && rules.identity_response) {
-      const trigger = rules.identity_response.trigger || 'questions about who I am or what I am';
-      // Simple keyword matching based on trigger description
-      const identityKeywords = ['siapa kamu', 'who are you', 'apa kamu', 'kamu siapa', 'who you', 'kamu apa', 'siapa anda', 'who is you', 'what are you', 'apa anda', 'who am i talking to', 'what is your name', 'nama kamu', 'siapa nama kamu'];
+    if (rules && rules.identity_response && rules.identity_response.identity_keywords) {
+      const identityKeywords = rules.identity_response.identity_keywords;
       const isIdentityQuestion = identityKeywords.some(keyword => userPrompt.toLowerCase().includes(keyword));
 
       if (isIdentityQuestion) {
@@ -54,13 +52,19 @@ app.post('/chat', async (req, res) => {
       }
     }
 
-    // For other questions, proxy to the external API
+    // For other questions, proxy to the external API with style enforcement
+    let enhancedPrompt = userPrompt;
+    if (rules && rules.speaking_style) {
+      const style = rules.speaking_style;
+      enhancedPrompt += `\n\nIMPORTANT: ${style.description}. Examples: ${style.examples.join(', ')}. ${rules.general_rules.join(', ')}.`;
+    }
+
     const response = await fetch('https://malva-assistant-api.vercel.app/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(req.body),
+      body: JSON.stringify({ prompt: enhancedPrompt }),
     });
 
     if (!response.ok) {
