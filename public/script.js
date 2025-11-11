@@ -19,7 +19,7 @@ class AIChat {
             console.error('Failed to load rules.json:', error);
         }
     }
-    
+
     initializeEventListeners() {
         // Kirim pesan ketika tombol diklik
         this.sendButton.addEventListener('click', () => this.sendMessage());
@@ -38,7 +38,7 @@ class AIChat {
         // Auto-focus input
         this.userInput.focus();
     }
-    
+
     async sendMessage() {
         const message = this.userInput.value.trim();
         if (!message) return;
@@ -86,7 +86,7 @@ class AIChat {
     generateId() {
         return 'msg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
     }
-    
+
     async callAPI(prompt) {
         const response = await fetch('/chat', {
             method: 'POST',
@@ -109,7 +109,7 @@ class AIChat {
         html = this.parseMarkdownTable(html);
         return html;
     }
-    
+
     addMessage(text, sender, options = {}) {
         const messageDiv = document.createElement('div');
         messageDiv.className = `message ${sender}-message`;
@@ -212,7 +212,7 @@ class AIChat {
         html += '</tbody></table>';
         return html;
     }
-    
+
     showLoading(show) {
         if (show) {
             const loadingDiv = document.createElement('div');
@@ -235,7 +235,7 @@ class AIChat {
         }
         this.sendButton.disabled = show;
     }
-    
+
     autoResizeTextarea() {
         this.userInput.style.height = 'auto';
         this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
@@ -357,11 +357,11 @@ class AIChat {
 
 // Typing animation for title
 class TypingAnimation {
-    constructor(element, text, speed = 100, delay = 2000) {
+    constructor(element, text, speed = 100, delay = 4000) {
         this.element = element;
         this.fullText = text;
         this.speed = speed;
-        this.delay = delay;
+        this.delay = delay; // pause duration at end/start (ms)
         this.index = 0;
         this.isDeleting = false;
         this.type();
@@ -376,11 +376,11 @@ class TypingAnimation {
 
         let timeout;
         if (!this.isDeleting && this.index === this.fullText.length) {
-            // Pause at end
+            // Longer pause when fully typed
             timeout = this.delay;
             this.isDeleting = true;
         } else if (this.isDeleting && this.index === 0) {
-            // Pause at start
+            // Pause before typing again
             timeout = this.delay;
             this.isDeleting = false;
         } else {
@@ -398,6 +398,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Start typing animation for title
     const titleSpan = document.querySelector('.malva-title span');
     if (titleSpan) {
-        new TypingAnimation(titleSpan, " Hi, I'm Malva Assistant ");
+        // pass custom delay in ms as 4500 if you want even longer pause
+        new TypingAnimation(titleSpan, " Hi, I'm Malva Assistant ", 100, 4500);
     }
 });
