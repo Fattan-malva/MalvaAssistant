@@ -101,8 +101,68 @@ class AIChat {
         return await response.json();
     }
 
+    parseCodeBlocks(text) {
+        const codeBlockRegex = /```([\w+-]*)?\n?([\s\S]*?)```/g;
+        let codeBlockIndex = 0;
+        const codeStore = {}; // Simpan kode asli di object terpisah
+
+        const result = text.replace(codeBlockRegex, (match, lang, code) => {
+            const language = lang && lang.trim() !== '' ? lang.trim() : 'code';
+            const codeId = `code-${codeBlockIndex++}`;
+            
+            // Simpan kode asli di object
+            codeStore[codeId] = code.trim();
+
+            // Escape HTML di tampilan
+            const escapedCode = code
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#39;");
+
+            // Return HTML - gunakan data-code-id bukan data-code
+            return `
+            <div class="code-block-container">
+                <div class="code-block-header">
+                    <span class="code-language">${language.toUpperCase()}</span>
+                    <button class="copy-code-btn" type="button" data-code-id="${codeId}" title="Copy code">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <pre class="code-block"><code class="language-${language}">${escapedCode}</code></pre>
+            </div>`;
+        });
+
+        // Simpan codeStore di contentDiv untuk akses nanti
+        return { html: result, codeStore };
+    }
+
+    formatCode(code, language) {
+        // Escape HTML to prevent rendering
+        const escapeHtml = (text) => {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, (m) => map[m]);
+        };
+        return escapeHtml(code);
+    }
+
     formatMessageHtml(text) {
-        let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Parse code blocks first - sekarang mengembalikan object
+        const codeBlockResult = this.parseCodeBlocks(text);
+        let html = codeBlockResult.html;
+        
+        // Simpan code store untuk digunakan di addMessage
+        this.lastCodeStore = codeBlockResult.codeStore;
+        
+        // Then parse other markdown
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
         html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
         html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
@@ -129,6 +189,33 @@ class AIChat {
         const html = this.formatMessageHtml(text);
         contentDiv.innerHTML = html;
 
+        // Simpan codeStore di contentDiv
+        if (this.lastCodeStore) {
+            contentDiv.codeStore = this.lastCodeStore;
+        }
+
+        // Event delegation untuk copy code button
+        contentDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (e.target.closest('.copy-code-btn')) {
+                const btn = e.target.closest('.copy-code-btn');
+                const codeId = btn.getAttribute('data-code-id');
+                const code = contentDiv.codeStore?.[codeId];
+                
+                if (code) {
+                    navigator.clipboard.writeText(code).then(() => {
+                        const notification = document.createElement('div');
+                        notification.className = 'copy-notification';
+                        notification.textContent = 'Copied to clipboard!';
+                        document.body.appendChild(notification);
+                        setTimeout(() => notification.remove(), 2000);
+                    }).catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+                }
+            }
+        });
+
         // Add action buttons
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'message-actions';
@@ -147,7 +234,7 @@ class AIChat {
             const editButton = document.createElement('button');
             editButton.className = 'action-btn edit-btn';
             editButton.title = 'Edit message';
-            editButton.innerHTML = '<i class="fa-solid fa-pencil"></i>';
+            editButton.innerHTML = '<i class="fas fa-edit"></i>';
             editButton.addEventListener('click', () => this.editMessage(messageDiv, contentDiv, text));
             actionsDiv.appendChild(editButton);
         }
