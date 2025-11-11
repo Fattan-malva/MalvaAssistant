@@ -1,12 +1,17 @@
 {
-  "name": "malva-chat-web",
+  "name": "ai-chat",
   "version": "1.0.0",
-  "description": "Simple Express.js web app for AI chat with dark theme",
-  "main": "server.js",
+  "description": "Simple AI Chat Application",
+  "main": "script.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "npx http-server -p 3000 -c-1 --proxy https://malva-assistant-api.vercel.app"
   },
   "dependencies": {
-    "express": "^4.18.2"
-  }
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "author": "",
+  "license": "MIT"
 }

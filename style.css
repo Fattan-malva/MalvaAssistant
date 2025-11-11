@@ -1,0 +1,220 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e0e0e0;
+}
+
+.container {
+    width: 95%;
+    max-width: 800px;
+    background: #0f0f23;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    margin: 10px;
+}
+
+h1 {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.8rem;
+}
+
+.chat-container {
+    height: calc(100vh - 200px);
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+    background: #1a1a2e;
+}
+
+.message {
+    margin-bottom: 15px;
+    display: flex;
+}
+
+.user-message {
+    justify-content: flex-end;
+}
+
+.bot-message {
+    justify-content: flex-start;
+}
+
+.message-content {
+    max-width: 70%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    word-wrap: break-word;
+    font-size: 14px;
+}
+
+.user-message .message-content {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.bot-message .message-content {
+    background: #2a2a4e;
+    color: #e0e0e0;
+    border: 1px solid #3a3a5e;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.input-container {
+    display: flex;
+    padding: 20px;
+    background: #0f0f23;
+    border-top: 1px solid #3a3a5e;
+    position: sticky;
+    bottom: 0;
+}
+
+#user-input {
+    flex: 1;
+    padding: 12px 16px;
+    border: 1px solid #3a3a5e;
+    border-radius: 25px;
+    outline: none;
+    font-size: 14px;
+    background: #2a2a4e;
+    color: #e0e0e0;
+    transition: border-color 0.3s;
+}
+
+#user-input:focus {
+    border-color: #667eea;
+}
+
+#send-button {
+    margin-left: 10px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: transform 0.2s;
+}
+
+#send-button:hover {
+    transform: translateY(-2px);
+}
+
+#send-button:active {
+    transform: translateY(0);
+}
+
+.loading {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 15px;
+}
+
+.loading-dots {
+    background: #2a2a4e;
+    color: #e0e0e0;
+    border: 1px solid #3a3a5e;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    padding: 12px 16px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+}
+
+.dot {
+    width: 6px;
+    height: 6px;
+    background: #667eea;
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.dot:nth-child(1) { animation-delay: -0.32s; }
+.dot:nth-child(2) { animation-delay: -0.16s; }
+.dot:nth-child(3) { animation-delay: 0s; }
+
+@keyframes bounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+/* Scrollbar styling */
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+    background: #1a1a2e;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: #3a3a5e;
+    border-radius: 3px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: #4a4a6e;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .container {
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .chat-container {
+        height: calc(100vh - 140px);
+    }
+
+    .input-container {
+        padding: 15px;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #0f0f23;
+        z-index: 10;
+    }
+
+    .chat-messages {
+        padding-bottom: 100px; /* Space for fixed input */
+    }
+
+    .message-content {
+        max-width: 85%;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    h1 {
+        padding: 15px;
+        font-size: 1.5rem;
+    }
+}
