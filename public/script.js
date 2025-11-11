@@ -111,7 +111,31 @@ class AIChat {
         html = this.parseMarkdownTable(html);
         contentDiv.innerHTML = html;
 
+        // Add action buttons
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'message-actions';
+
+        // Copy button
+        const copyButton = document.createElement('button');
+        copyButton.className = 'action-btn copy-btn';
+        copyButton.title = 'Copy to clipboard';
+        copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+        copyButton.addEventListener('click', () => this.copyToClipboard(text));
+
+        actionsDiv.appendChild(copyButton);
+
+        // Edit button for user messages
+        if (sender === 'user') {
+            const editButton = document.createElement('button');
+            editButton.className = 'action-btn edit-btn';
+            editButton.title = 'Edit message';
+            editButton.innerHTML = '<i class="fas fa-edit"></i>';
+            editButton.addEventListener('click', () => this.editMessage(messageDiv, contentDiv, text));
+            actionsDiv.appendChild(editButton);
+        }
+
         messageDiv.appendChild(contentDiv);
+        messageDiv.appendChild(actionsDiv);
         this.chatMessages.appendChild(messageDiv);
 
         this.scrollToBottom();
@@ -196,6 +220,81 @@ class AIChat {
     autoResizeTextarea() {
         this.userInput.style.height = 'auto';
         this.userInput.style.height = Math.min(this.userInput.scrollHeight, 120) + 'px';
+    }
+
+    copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(() => {
+            // Show temporary feedback
+            const notification = document.createElement('div');
+            notification.className = 'copy-notification';
+            notification.textContent = 'Copied to clipboard!';
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 2000);
+        }).catch(err => {
+            console.error('Failed to copy: ', err);
+        });
+    }
+
+    editMessage(messageDiv, contentDiv, originalText) {
+        // Create edit input
+        const editInput = document.createElement('textarea');
+        editInput.className = 'edit-input';
+        editInput.value = originalText;
+        editInput.style.width = '100%';
+        editInput.style.minHeight = '40px';
+        editInput.style.border = '1px solid #3a3a5e';
+        editInput.style.borderRadius = '8px';
+        editInput.style.background = '#2a2a4e';
+        editInput.style.color = '#e0e0e0';
+        editInput.style.padding = '8px';
+        editInput.style.resize = 'none';
+
+        // Replace content with input
+        contentDiv.innerHTML = '';
+        contentDiv.appendChild(editInput);
+        editInput.focus();
+        editInput.select();
+
+        // Handle save on Enter
+        editInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                this.saveEdit(messageDiv, contentDiv, editInput.value, originalText);
+            } else if (e.key === 'Escape') {
+                this.cancelEdit(contentDiv, originalText);
+            }
+        });
+
+        // Handle save on blur
+        editInput.addEventListener('blur', () => {
+            this.saveEdit(messageDiv, contentDiv, editInput.value, originalText);
+        });
+    }
+
+    saveEdit(messageDiv, contentDiv, newText, originalText) {
+        if (newText.trim() && newText !== originalText) {
+            // Update the message content
+            let html = newText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
+            html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
+            html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
+            html = this.parseMarkdownTable(html);
+            contentDiv.innerHTML = html;
+
+            // Optionally, you could resend the message to get a new AI response
+            // But for now, just update the display
+        } else {
+            this.cancelEdit(contentDiv, originalText);
+        }
+    }
+
+    cancelEdit(contentDiv, originalText) {
+        let html = originalText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
+        html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
+        html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
+        html = this.parseMarkdownTable(html);
+        contentDiv.innerHTML = html;
     }
 
     scrollToBottom() {

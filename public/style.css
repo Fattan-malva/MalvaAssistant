@@ -85,14 +85,20 @@ h1 {
 .message {
     margin-bottom: 15px;
     display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: flex-start; /* default: bot side */
+    width: 100%;
 }
 
 .user-message {
-    justify-content: flex-end;
+    /* align user's message to the right */
+    align-items: flex-end;
 }
 
 .bot-message {
-    justify-content: flex-start;
+    /* align bot's message to the left */
+    align-items: flex-start;
 }
 
 .message-content {
@@ -103,6 +109,56 @@ h1 {
     font-size: 14px;
     word-spacing: normal;
     letter-spacing: normal;
+    position: relative;
+}
+
+.message-actions {
+    display: flex;
+    gap: 8px;
+    /* place actions below the message bubble */
+    margin-top: 6px;
+    padding: 4px 8px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 8px;
+    align-self: flex-start; /* default position under bot bubble */
+}
+
+/* place actions under user bubble on the right */
+.user-message .message-actions {
+    align-self: flex-end;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    color: #a855f7;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+    font-size: 12px;
+}
+
+.action-btn:hover {
+    background: rgba(168, 85, 247, 0.1);
+}
+
+.copy-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #007aff;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .user-message .message-content {

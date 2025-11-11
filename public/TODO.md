@@ -7,10 +7,13 @@
 - [x] Fix input zoom on iOS by setting font-size to 16px
 - [x] Prevent text zoom by adding viewport meta tag
 - [x] Adjust word spacing in messages
+- [x] Add copy to clipboard functionality for all messages
+- [x] Add edit functionality for user messages
 - [x] Test responsiveness across devices
 
 ## Progress
 - [x] Analyzed current code and identified issues
 - [x] Created plan and got user approval
 - [x] Implement CSS changes
+- [x] Implement JavaScript functionality for copy and edit
 - [x] Verify fixes
