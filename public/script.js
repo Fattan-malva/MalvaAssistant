@@ -49,7 +49,7 @@ class AIChat {
 
             // Check for identity questions
             if (this.isIdentityQuestion(message)) {
-                botReply = this.rules?.identity_response?.response || 'Saya Malva Assistant, dibuat oleh Mas Fattan. Lumayan keren ya? Apa yang bisa saya bantu hari ini?';
+                botReply = this.rules?.identity_response?.response || 'Saya Malva Assistant, dibuat oleh Fattan Malva. Lumayan keren ya? Apa yang bisa saya bantu hari ini?';
             } else {
                 // Kirim request ke API with style instructions
                 const response = await this.callAPI(message);
@@ -96,12 +96,70 @@ class AIChat {
 
         const contentDiv = document.createElement('div');
         contentDiv.className = 'message-content';
-        contentDiv.textContent = text;
+        // Parse **bold** as <strong>bold</strong>, *italic* as bold yellow, ### headings as bold light green, and tables
+        let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
+        html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
+        html = this.parseMarkdownTable(html);
+        contentDiv.innerHTML = html;
 
         messageDiv.appendChild(contentDiv);
         this.chatMessages.appendChild(messageDiv);
 
         this.scrollToBottom();
+    }
+
+    parseMarkdownTable(text) {
+        const lines = text.split('\n');
+        let inTable = false;
+        let tableHtml = '';
+        let headers = [];
+        let rows = [];
+
+        for (let line of lines) {
+            if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+                const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
+                if (!inTable) {
+                    headers = cells;
+                    inTable = true;
+                } else if (cells.every(cell => cell.match(/^[-:]+$/))) {
+                    // Separator line, skip
+                    continue;
+                } else {
+                    rows.push(cells);
+                }
+            } else {
+                if (inTable) {
+                    // End of table
+                    tableHtml += this.buildTable(headers, rows);
+                    inTable = false;
+                    headers = [];
+                    rows = [];
+                }
+                tableHtml += line + '\n';
+            }
+        }
+        if (inTable) {
+            tableHtml += this.buildTable(headers, rows);
+        }
+        return tableHtml.replace(/\n/g, '<br>');
+    }
+
+    buildTable(headers, rows) {
+        let html = '<table class="message-table"><thead><tr>';
+        headers.forEach(header => {
+            html += `<th>${header}</th>`;
+        });
+        html += '</tr></thead><tbody>';
+        rows.forEach(row => {
+            html += '<tr>';
+            row.forEach(cell => {
+                html += `<td>${cell}</td>`;
+            });
+            html += '</tr>';
+        });
+        html += '</tbody></table>';
+        return html;
     }
     
     showLoading(show) {
