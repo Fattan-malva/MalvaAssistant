@@ -166,6 +166,7 @@ class AIChat {
         html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
         html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
         html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
+        html = html.replace(/(^|\n)---(\n|$)/g, '$1<hr class="elegant-line">$2');
         html = this.parseMarkdownTable(html);
         return html;
     }

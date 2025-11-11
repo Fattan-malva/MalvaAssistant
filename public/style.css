@@ -230,6 +230,16 @@ h1 {
     background: #2d2d4a;
 }
 
+.elegant-line {
+    border: none;
+    height: 1px;
+    width: 100%;
+    background: linear-gradient(to right, transparent, #666, transparent);
+    margin: 16px 0;
+    opacity: 0.6;
+}
+
+
 .code-block-container {
     background: #1e1e2f;
     border-radius: 10px;
