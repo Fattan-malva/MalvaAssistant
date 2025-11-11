@@ -2,11 +2,12 @@
   "name": "ai-chat",
   "version": "1.0.0",
   "description": "Simple AI Chat Application",
-  "main": "script.js",
+  "main": "app.js",
   "scripts": {
-    "start": "npx http-server -p 3000 -c-1 --proxy https://malva-assistant-api.vercel.app"
+    "start": "node app.js"
   },
   "dependencies": {
+    "express": "^4.21.2",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
