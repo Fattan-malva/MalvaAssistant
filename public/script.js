@@ -107,6 +107,7 @@ class AIChat {
         let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         html = html.replace(/\*(.*?)\*/g, '<strong style="color: #90EE90;">$1</strong>');
         html = html.replace(/### (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
+        html = html.replace(/## (.+)/g, '<strong style="color: #90EE90;">$1</strong>');
         html = this.parseMarkdownTable(html);
         contentDiv.innerHTML = html;
 

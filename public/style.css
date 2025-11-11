@@ -131,14 +131,16 @@ h1 {
     border: 1px solid #3a3a5e;
     border-radius: 8px;
     overflow: hidden;
+    font-size: 12px;
 }
 
 .message-table th,
 .message-table td {
-    padding: 10px 15px;
+    padding: 8px 10px;
     text-align: left;
     border-bottom: 1px solid #3a3a5e;
     color: #e0e0e0;
+    font-size: 12px;
 }
 
 .message-table th {
@@ -383,6 +385,18 @@ h1 {
         padding: 10px 14px;
         word-spacing: normal;
         letter-spacing: normal;
+    }
+
+    .message-table {
+        font-size: 10px;
+        overflow-x: auto;
+    }
+
+    .message-table th,
+    .message-table td {
+        padding: 6px 8px;
+        font-size: 10px;
+        white-space: nowrap;
     }
 
     h1 {
