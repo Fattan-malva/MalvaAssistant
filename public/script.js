@@ -1,6 +1,6 @@
 class AIChat {
     constructor() {
-        this.apiUrl = 'https://malva-assistant-api.vercel.app/chat';
+        this.apiUrl = 'http://localhost:1402/chat';
         this.chatMessages = document.getElementById('chat-messages');
         this.userInput = document.getElementById('user-input');
         this.sendButton = document.getElementById('send-button');

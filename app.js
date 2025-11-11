@@ -59,7 +59,7 @@ app.post('/chat', async (req, res) => {
       enhancedPrompt += `\n\nIMPORTANT: ${style.description}. Examples: ${style.examples.join(', ')}. ${rules.general_rules.join(', ')}.`;
     }
 
-    const response = await fetch('https://malva-assistant-api.vercel.app/chat', {
+    const response = await fetch('http://localhost:1402/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
