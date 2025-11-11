@@ -395,6 +395,10 @@ h1 {
         max-width: 100%;
     }
 
+    .message-table::-webkit-scrollbar {
+        display: none;
+    }
+
     .message-table th,
     .message-table td {
         padding: 6px 8px;
