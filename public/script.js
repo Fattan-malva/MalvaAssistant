@@ -234,7 +234,7 @@ class AIChat {
             const editButton = document.createElement('button');
             editButton.className = 'action-btn edit-btn';
             editButton.title = 'Edit message';
-            editButton.innerHTML = '<i class="fas fa-edit"></i>';
+            editButton.innerHTML = '<i class="fa-solid fa-pencil"></i>';
             editButton.addEventListener('click', () => this.editMessage(messageDiv, contentDiv, text));
             actionsDiv.appendChild(editButton);
         }

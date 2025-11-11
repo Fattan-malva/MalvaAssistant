@@ -279,6 +279,13 @@ h1 {
 
 /* Tombol Copy */
 .copy-code-btn {
+    display: inline-flex;
+    align-items: center;
+    /* ⬅️ Bikin ikon & teks rata tengah vertikal */
+    justify-content: center;
+    /* ⬅️ Posisikan konten di tengah horizontal */
+    gap: 4px;
+    /* ⬅️ Jarak kecil antara ikon dan teks */
     background: transparent;
     color: #ccc;
     border: none;
@@ -287,16 +294,25 @@ h1 {
     padding: 5px 8px;
     border-radius: 6px;
     transition: all 0.2s ease;
+    vertical-align: middle;
+    /* ⬅️ Pastikan tombolnya sejajar di baris */
 }
+
+.copy-code-btn i {
+    font-size: 1rem;
+    /* Sesuaikan ukuran ikon */
+    line-height: 1;
+    /* Biar tidak geser ke bawah */
+    display: flex;
+    align-items: center;
+}
+
 
 .copy-code-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
 }
 
-.copy-code-btn i {
-    pointer-events: none;
-}
 
 
 .input-container {
