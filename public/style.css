@@ -390,6 +390,9 @@ h1 {
     .message-table {
         font-size: 10px;
         overflow-x: auto;
+        display: block;
+        width: 100%;
+        max-width: 100%;
     }
 
     .message-table th,
@@ -397,6 +400,7 @@ h1 {
         padding: 6px 8px;
         font-size: 10px;
         white-space: nowrap;
+        min-width: 80px;
     }
 
     h1 {
