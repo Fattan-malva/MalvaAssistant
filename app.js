@@ -95,19 +95,23 @@ app.post('/tts', async (req, res) => {
     // Import ggs.js dynamically
     const { textToSpeech } = await import('./speech/ggs.js');
 
-    // Generate audio file
-    const outputPath = `./temp_${Date.now()}.mp3`;
+    // Generate audio file in /tmp (Vercel serverless compatible)
+    const outputPath = `/tmp/temp_${Date.now()}.mp3`;
     await textToSpeech(text, outputPath);
 
-    // Send the file
-    res.sendFile(path.resolve(outputPath), (err) => {
-      if (err) {
-        console.error('Error sending file:', err);
-      }
-      // Clean up temp file
-      fs.unlink(outputPath, (unlinkErr) => {
-        if (unlinkErr) console.error('Error deleting temp file:', unlinkErr);
-      });
+    // Read the file as buffer
+    const audioBuffer = await fs.readFile(outputPath);
+
+    // Set headers for MP3
+    res.setHeader('Content-Type', 'audio/mpeg');
+    res.setHeader('Content-Disposition', 'inline; filename="speech.mp3"');
+
+    // Send the buffer
+    res.send(audioBuffer);
+
+    // Clean up temp file
+    fs.unlink(outputPath, (unlinkErr) => {
+      if (unlinkErr) console.error('Error deleting temp file:', unlinkErr);
     });
   } catch (error) {
     console.error('TTS error:', error);
