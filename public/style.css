@@ -5,8 +5,9 @@
 }
 
 body {
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
-    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 50%, #16213e 100%);
+    background-attachment: fixed;
     min-height: 100dvh;
     height: 100dvh;
     display: flex;
@@ -24,11 +25,13 @@ body {
 .container {
     width: 95%;
     max-width: 800px;
-    background: #0f0f23;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background: rgba(15, 15, 35, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(168, 85, 247, 0.1);
     overflow: hidden;
     margin: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 h1 {
@@ -51,13 +54,14 @@ h1 {
     letter-spacing: 0.5px;
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
     user-select: none;
+    transition: all 0.3s ease;
 }
 
 /* Revert highlight to inherit color (no purple) but keep typographic weight; remove purple glow */
 .malva-title .malva-highlight {
-    color: inherit;
+    color: #a855f7;
     font-weight: 700;
-    text-shadow: none;
+    text-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
     transition: text-shadow 0.3s ease, color 0.2s ease;
 }
 
@@ -67,12 +71,12 @@ h1 {
     border-radius: 50%;
     object-fit: cover;
     box-shadow: 0 0 12px rgba(147, 51, 234, 0.4);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 }
 
 .malva-icon:hover {
-    transform: scale(1.1);
-    box-shadow: 0 0 18px rgba(147, 51, 234, 0.7);
+    transform: scale(1.15);
+    box-shadow: 0 0 24px rgba(147, 51, 234, 0.8);
 }
 
 
@@ -83,11 +87,115 @@ h1 {
     flex-direction: column;
 }
 
+/* --- Speech Mode / Voice UI --- */
+.voice-mode-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 36px 24px 48px 24px;
+    gap: 16px;
+    width: 100%;
+    flex: 1;
+    transition: all 0.35s ease;
+}
+
+.robot-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    max-width: 520px;
+}
+
+.robot-icon {
+    width: 260px;
+    height: 260px;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.35s cubic-bezier(.2,.9,.3,1), box-shadow 0.25s ease;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45), 0 0 30px rgba(168,85,247,0.06) inset;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+}
+
+.robot-icon:focus,
+.robot-icon:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 18px 50px rgba(0,0,0,0.55), 0 0 40px rgba(168,85,247,0.12) inset;
+    outline: none;
+}
+
+/* subtle pulse used when listening */
+@keyframes micPulse {
+    0% { box-shadow: 0 0 0 0 rgba(168,85,247,0.12); }
+    70% { box-shadow: 0 0 0 24px rgba(168,85,247,0.02); }
+    100% { box-shadow: 0 0 0 0 rgba(168,85,247,0.00); }
+}
+
+.robot-icon[aria-pressed="true"] {
+    animation: micPulse 1.8s infinite ease-out;
+}
+
+.voice-status {
+    font-size: 1.05rem;
+    color: #dfe7ff;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.03);
+    box-shadow: 0 6px 18px rgba(15,15,35,0.45);
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+.voice-hint {
+    font-size: 0.86rem;
+    color: rgba(220,220,240,0.75);
+    opacity: 0.95;
+}
+
+.voice-controls {
+    position: absolute;
+    top: 90px;
+    left: 18px;
+    display: flex;
+    gap: 8px;
+    z-index: 6;
+}
+
+.voice-controls button {
+    background: rgba(0,0,0,0.35);
+    border: 1px solid rgba(255,255,255,0.04);
+    color: #fff;
+    width: 44px;
+    height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.18s ease, background 0.2s ease, box-shadow 0.2s ease;
+    font-size: 16px;
+}
+
+.voice-controls button:hover { transform: translateY(-3px); background: rgba(168,85,247,0.12); }
+
+.voice-controls button:active { transform: translateY(-1px) scale(0.98); }
+
+/* ensure mobile layout looks good */
+@media (max-width: 768px) {
+    .robot-icon { width: 200px; height: 200px; }
+    .voice-status { font-size: 1rem; padding: 8px 12px; }
+    .voice-controls { top: 90px; left: 12px; }
+}
+
 .chat-messages {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
-    background: #1a1a2e;
+    background: #151528;
 }
 
 .message {
@@ -98,6 +206,18 @@ h1 {
     align-items: flex-start;
     /* default: bot side */
     width: 100%;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .user-message {
@@ -119,6 +239,7 @@ h1 {
     word-spacing: normal;
     letter-spacing: normal;
     position: relative;
+    transition: all 0.2s ease;
 }
 
 .message-actions {
@@ -157,13 +278,25 @@ h1 {
     position: fixed;
     top: 20px;
     right: 20px;
-    background: #007aff;
+    background: linear-gradient(135deg, #007aff, #0056b3);
     color: white;
-    padding: 8px 16px;
-    border-radius: 8px;
+    padding: 10px 18px;
+    border-radius: 10px;
     font-size: 14px;
     z-index: 1000;
-    animation: fadeIn 0.3s ease;
+    animation: slideInRight 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 @keyframes fadeIn {
@@ -179,15 +312,16 @@ h1 {
 }
 
 .user-message .message-content {
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 
 .bot-message .message-content {
-    background: #2a2a4e;
+    background: rgba(42, 42, 78, 0.7);
     color: #e0e0e0;
-    border: 1px solid #3a3a5e;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
 }
 
 .bot-message .message-content strong {
@@ -242,11 +376,11 @@ h1 {
 
 .code-block-container {
     background: #1e1e2f;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
     margin: 1rem 0;
-    box-shadow: 0 0 8px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(168, 85, 247, 0.15);
 }
 
 .code-block-header {
@@ -328,23 +462,25 @@ h1 {
 .input-container {
     display: flex;
     padding: 20px;
-    background: #0f0f23;
-    border-top: 1px solid #3a3a5e;
+    background: rgba(15, 15, 35, 0.9);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
     position: sticky;
     bottom: 0;
+    gap: 8px;
 }
 
 #user-input {
     flex: 1;
     padding: 12px 16px;
-    border: 1px solid #3a3a5e;
+    border: 1px solid rgba(102, 126, 234, 0.3);
     border-radius: 25px;
     outline: none;
     font-size: 14px;
     font-family: "Poppins", "Inter", sans-serif;
-    background: #2a2a4e;
+    background: rgba(42, 42, 78, 0.5);
     color: #e0e0e0;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
     resize: none;
     overflow-y: auto;
     min-height: 20px;
@@ -358,33 +494,63 @@ h1 {
 
 #user-input:focus {
     border-color: #667eea;
+    box-shadow: 0 0 12px rgba(102, 126, 234, 0.3);
+    background: rgba(42, 42, 78, 0.8);
 }
 
 #send-button {
-    background-color: #007aff;
+    background: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
     /* warna khas iOS blue */
     border: none;
     color: white;
     font-size: 18px;
-    margin-left: 8px;
     padding: 11px 13px;
     border-radius: 50%;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background-color 0.3s ease, transform 0.1s ease;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     flex-shrink: 0;
     width: 44px;
     height: 44px;
+    box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3);
+}
+
+#speech-mode-button {
+    background: linear-gradient(135deg, #a855f7 0%, #8b3dff 100%);
+    border: none;
+    color: white;
+    font-size: 18px;
+    padding: 11px 13px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+}
+
+#speech-mode-button:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(168, 85, 247, 0.5);
+}
+
+#speech-mode-button:active {
+    transform: scale(0.95);
 }
 
 #send-button:hover {
-    background-color: #005ecb;
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(0, 122, 255, 0.5);
 }
 
 #send-button:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
 }
 
 #send-button i {
@@ -400,10 +566,10 @@ h1 {
 }
 
 .loading-dots {
-    background: #2a2a4e;
+    background: rgba(42, 42, 78, 0.7);
     color: #e0e0e0;
-    border: 1px solid #3a3a5e;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
     padding: 12px 16px;
     border-radius: 18px;
     display: flex;
@@ -595,9 +761,9 @@ h1 {
 /* Edit input styling (dark theme, no white border) */
 .edit-input {
     width: 100%;
-    background: #2a2a4e;
+    background: rgba(42, 42, 78, 0.5);
     color: #e0e0e0;
-    border: 1px solid #3a3a5e;
+    border: 1px solid rgba(102, 126, 234, 0.3);
     border-radius: 8px;
     padding: 8px;
     resize: none;
@@ -607,6 +773,7 @@ h1 {
     line-height: 1.4;
     caret-color: #a855f7;
     /* purple caret to match theme */
+    transition: all 0.3s ease;
 }
 
 /* Focus state */

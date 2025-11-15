@@ -1,6 +1,11 @@
-const express = require('express');
-const path = require('path');
-const fs = require('fs').promises;
+import express from 'express';
+import path from 'path';
+import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
 // Middleware to parse JSON
@@ -76,6 +81,37 @@ app.post('/chat', async (req, res) => {
   } catch (error) {
     console.error('Error proxying to API:', error);
     res.status(500).json({ error: 'Failed to communicate with API' });
+  }
+});
+
+// TTS endpoint using ggs.js
+app.post('/tts', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text) {
+      return res.status(400).json({ error: 'Text is required' });
+    }
+
+    // Import ggs.js dynamically
+    const { textToSpeech } = await import('./speech/ggs.js');
+
+    // Generate audio file
+    const outputPath = `./temp_${Date.now()}.mp3`;
+    await textToSpeech(text, outputPath);
+
+    // Send the file
+    res.sendFile(path.resolve(outputPath), (err) => {
+      if (err) {
+        console.error('Error sending file:', err);
+      }
+      // Clean up temp file
+      fs.unlink(outputPath, (unlinkErr) => {
+        if (unlinkErr) console.error('Error deleting temp file:', unlinkErr);
+      });
+    });
+  } catch (error) {
+    console.error('TTS error:', error);
+    res.status(500).json({ error: 'Failed to generate speech' });
   }
 });
 

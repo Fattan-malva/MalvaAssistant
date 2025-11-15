@@ -35,6 +35,14 @@ class AIChat {
         // Auto-resize textarea
         this.userInput.addEventListener('input', () => this.autoResizeTextarea());
 
+        // Speech mode button
+        const speechModeButton = document.getElementById('speech-mode-button');
+        if (speechModeButton) {
+            speechModeButton.addEventListener('click', () => {
+                window.location.href = 'speech.html';
+            });
+        }
+
         // Auto-focus input
         this.userInput.focus();
     }
