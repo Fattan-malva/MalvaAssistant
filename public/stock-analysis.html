@@ -565,7 +565,14 @@
             flex-direction: column;
             gap: 12px;
             max-width: 100%;
+            overflow-y: scroll;
+            scrollbar-width: none;
         }
+
+        #results::-webkit-scrollbar {
+            display: none;
+        }
+
 
         .progress-item {
             padding: 12px 16px;
@@ -613,7 +620,7 @@
             max-width: 100%;
         }
 
-        .analysis-result > * {
+        .analysis-result>* {
             max-width: 100%;
         }
 
@@ -682,16 +689,6 @@
                 opacity: 1;
                 transform: translateY(0);
             }
-        }
-
-        /* Scrollbar styling - hidden */
-        #results::-webkit-scrollbar {
-            display: none;
-        }
-
-        #results {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
         }
 
         /* Mobile responsiveness */
