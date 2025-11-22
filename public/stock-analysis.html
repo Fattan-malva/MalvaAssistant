@@ -1193,7 +1193,6 @@
 
             .analysis-result {
                 padding: 12px;
-                overflow-x: auto;
                 max-width: 100%;
             }
 
@@ -1314,7 +1313,6 @@
 
             .analysis-result {
                 padding: 10px;
-                overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
                 max-width: 100%;
             }
@@ -1348,6 +1346,412 @@
             .dividend-term,
             .earnings-term {
                 font-size: 0.9em;
+            }
+        }
+
+        /* SMART PATTERN TRADING RECOMMENDATIONS TABLE STYLES */
+        .smart-pattern-recommendations {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .recommendation-subtitle {
+            font-size: 0.95rem;
+            color: #b0b0d0;
+            margin: 12px 0 16px 0;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .recommendations-table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin: 16px 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .smart-recommendations-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(26, 26, 46, 0.9);
+            border: 1px solid rgba(168, 85, 247, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+            font-size: 0.85em;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .smart-recommendations-table thead {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(168, 85, 247, 0.15));
+            border-bottom: 2px solid rgba(168, 85, 247, 0.4);
+        }
+
+        .smart-recommendations-table th {
+            padding: 14px 10px;
+            text-align: left;
+            font-weight: 700;
+            color: #a855f7;
+            border-right: 1px solid rgba(168, 85, 247, 0.2);
+            white-space: nowrap;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.8em;
+        }
+
+        .smart-recommendations-table th:last-child {
+            border-right: none;
+        }
+
+        .smart-recommendations-table tbody tr {
+            border-bottom: 1px solid rgba(168, 85, 247, 0.15);
+            transition: all 0.2s ease;
+        }
+
+        .smart-recommendations-table tbody tr:nth-child(odd) {
+            background: rgba(42, 42, 78, 0.25);
+        }
+
+        .smart-recommendations-table tbody tr:nth-child(even) {
+            background: rgba(26, 26, 46, 0.5);
+        }
+
+        .smart-recommendations-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.2);
+            box-shadow: inset 0 0 8px rgba(168, 85, 247, 0.1);
+        }
+
+        .smart-recommendations-table td {
+            padding: 12px 10px;
+            border-right: 1px solid rgba(168, 85, 247, 0.1);
+            color: #e0e0e0;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+
+        .smart-recommendations-table td:last-child {
+            border-right: none;
+        }
+
+        /* Row Number Column */
+        .row-number {
+            font-weight: 700;
+            color: #a855f7;
+            text-align: center;
+            width: 40px;
+            min-width: 40px;
+        }
+
+        /* Symbol Cell */
+        .symbol-cell {
+            font-weight: 700;
+            color: #ffffff;
+            min-width: 100px;
+        }
+
+        .symbol-cell strong {
+            color: #90ee90;
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .stock-name {
+            font-size: 0.75em;
+            color: #a0a0b0;
+            font-weight: 400;
+        }
+
+        /* Action Cell */
+        .action-cell {
+            min-width: 110px;
+            text-align: center;
+        }
+
+        .accumulation-badge {
+            font-size: 0.75em;
+            color: #ffaa33;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        .trading-action {
+            font-weight: 700;
+            padding: 5px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            font-size: 0.85em;
+            transition: all 0.2s ease;
+        }
+
+        .trading-action.strong-buy {
+            background: linear-gradient(135deg, #00ff00 0%, #00cc00 100%);
+            color: #000000;
+            box-shadow: 0 2px 8px rgba(0, 255, 0, 0.3);
+        }
+
+        .trading-action.buy {
+            background: linear-gradient(135deg, #90ee90 0%, #7cdc7c 100%);
+            color: #000000;
+            box-shadow: 0 2px 8px rgba(144, 238, 144, 0.3);
+        }
+
+        .trading-action.hold {
+            background: linear-gradient(135deg, #ffff00 0%, #ffdd00 100%);
+            color: #000000;
+            box-shadow: 0 2px 8px rgba(255, 255, 0, 0.3);
+        }
+
+        .trading-action.avoid {
+            background: linear-gradient(135deg, #ff6666 0%, #ff4444 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
+        }
+
+        .trading-action.sell {
+            background: linear-gradient(135deg, #ff6666 0%, #ff4444 100%);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(255, 68, 68, 0.3);
+        }
+
+        /* Price Cells */
+        .entry-cell,
+        .stoploss-cell,
+        .target-cell {
+            text-align: right;
+            font-weight: 600;
+            min-width: 90px;
+        }
+
+        .entry-cell {
+            color: #90ee90;
+        }
+
+        .stoploss-cell {
+            color: #ff8888;
+        }
+
+        .target-cell {
+            color: #ffaa33;
+        }
+
+        .target-1 {
+            color: #ffff99;
+        }
+
+        .target-2 {
+            color: #ffdd66;
+        }
+
+        .target-3 {
+            color: #ffaa33;
+        }
+
+        /* Catalyst Cell */
+        .catalyst-cell {
+            min-width: 120px;
+            font-weight: 600;
+            color: #a855f7;
+        }
+
+        .bandar-type {
+            font-size: 0.75em;
+            color: #ffaa33;
+            margin-top: 3px;
+            font-weight: 500;
+        }
+
+        /* Confidence Cell */
+        .confidence-cell {
+            min-width: 100px;
+            text-align: center;
+        }
+
+        .confidence-bar {
+            background: linear-gradient(90deg, rgba(102, 126, 234, 0.3), rgba(168, 85, 247, 0.3));
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 6px;
+            padding: 4px 8px;
+            position: relative;
+            overflow: hidden;
+            min-width: 70px;
+            display: inline-block;
+        }
+
+        .confidence-bar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: var(--confidence);
+            background: linear-gradient(90deg, #667eea 0%, #a855f7 100%);
+            opacity: 0.6;
+            z-index: -1;
+        }
+
+        .confidence-bar.confidence-high::before {
+            background: linear-gradient(90deg, #00ff00 0%, #00cc00 100%);
+        }
+
+        .confidence-bar.confidence-medium::before {
+            background: linear-gradient(90deg, #ffff00 0%, #ffdd00 100%);
+        }
+
+        .confidence-bar.confidence-low::before {
+            background: linear-gradient(90deg, #ff8888 0%, #ff6666 100%);
+        }
+
+        .confidence-text {
+            font-weight: 700;
+            color: #ffffff;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Timeframe Cell */
+        .timeframe-cell {
+            min-width: 130px;
+            color: #00ddff;
+            font-weight: 600;
+        }
+
+        /* Strategy Cell */
+        .strategy-cell {
+            min-width: 150px;
+            font-size: 0.8em;
+            color: #d0d0e0;
+        }
+
+        .risk-reward {
+            font-size: 0.75em;
+            color: #ffaa33;
+            margin-top: 3px;
+            font-weight: 600;
+        }
+
+        /* Trading Legend */
+        .trading-legend {
+            margin-top: 20px;
+            padding: 16px;
+            background: rgba(26, 26, 46, 0.6);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid rgba(168, 85, 247, 0.4);
+        }
+
+        .legend-title {
+            font-weight: 700;
+            color: #a855f7;
+            margin-bottom: 12px;
+            font-size: 0.95em;
+        }
+
+        .legend-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85em;
+            color: #d0d0e0;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            flex-shrink: 0;
+        }
+
+        .legend-color.strong-buy {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            box-shadow: 0 0 8px rgba(0, 255, 0, 0.4);
+        }
+
+        .legend-color.buy {
+            background: linear-gradient(135deg, #90ee90, #7cdc7c);
+            box-shadow: 0 0 8px rgba(144, 238, 144, 0.4);
+        }
+
+        .legend-color.hold {
+            background: linear-gradient(135deg, #ffff00, #ffdd00);
+            box-shadow: 0 0 8px rgba(255, 255, 0, 0.4);
+        }
+
+        .legend-color.avoid {
+            background: linear-gradient(135deg, #ff6666, #ff4444);
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+        }
+
+        /* Responsive adjustments for smart recommendations table */
+        @media (max-width: 1200px) {
+            .smart-recommendations-table {
+                font-size: 0.8em;
+            }
+
+            .smart-recommendations-table th,
+            .smart-recommendations-table td {
+                padding: 10px 8px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .recommendations-table-container {
+                border-radius: 8px;
+                margin: 12px -8px;
+                width: calc(100% + 16px);
+            }
+
+            .smart-recommendations-table {
+                font-size: 0.75em;
+            }
+
+            .smart-recommendations-table th,
+            .smart-recommendations-table td {
+                padding: 8px 6px;
+            }
+
+            .symbol-cell,
+            .catalyst-cell,
+            .strategy-cell {
+                min-width: auto;
+            }
+
+            .stock-name {
+                display: none;
+            }
+
+            .entry-cell,
+            .stoploss-cell,
+            .target-cell {
+                min-width: 70px;
+            }
+
+            .trading-action {
+                padding: 4px 6px;
+                font-size: 0.75em;
+            }
+
+            .confidence-bar {
+                min-width: 50px;
+                padding: 3px 6px;
+            }
+
+            .confidence-text {
+                font-size: 0.7em;
+            }
+
+            .legend-items {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .legend-item {
+                font-size: 0.75em;
             }
         }
     </style>

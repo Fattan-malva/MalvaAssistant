@@ -787,3 +787,959 @@ h1 {
 .edit-input::placeholder {
     color: #9aa0b4;
 }
+
+/* ===== SMART RECOMMENDATIONS TABLE STYLING ===== */
+
+.smart-pattern-recommendations {
+    margin-top: 24px;
+    padding: 20px;
+    background: rgba(15, 20, 45, 0.6);
+    border-radius: 16px;
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.section-title {
+    color: #a855f7;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    text-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+}
+
+.recommendation-subtitle {
+    color: #8b9abb;
+    font-size: 0.9rem;
+    margin-bottom: 18px;
+    font-weight: 400;
+}
+
+.recommendations-table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.recommendations-table-container::-webkit-scrollbar {
+    height: 6px;
+}
+
+.recommendations-table-container::-webkit-scrollbar-track {
+    background: rgba(26, 26, 46, 0.3);
+}
+
+.recommendations-table-container::-webkit-scrollbar-thumb {
+    background: rgba(168, 85, 247, 0.3);
+    border-radius: 3px;
+}
+
+.recommendations-table-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.5);
+}
+
+.smart-recommendations-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: linear-gradient(to bottom, rgba(26, 26, 46, 0.8), rgba(20, 20, 40, 0.8));
+    font-size: 13px;
+}
+
+.smart-recommendations-table thead {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.2), rgba(168, 85, 247, 0.15));
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.smart-recommendations-table th {
+    padding: 14px 12px;
+    text-align: left;
+    color: #a855f7;
+    font-weight: 700;
+    border-bottom: 2px solid rgba(168, 85, 247, 0.3);
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    user-select: none;
+}
+
+.smart-recommendations-table tbody tr {
+    border-bottom: 1px solid rgba(168, 85, 247, 0.1);
+    transition: all 0.25s ease;
+}
+
+.smart-recommendations-table tbody tr:nth-child(even) {
+    background: rgba(42, 42, 78, 0.2);
+}
+
+.smart-recommendations-table tbody tr:nth-child(odd) {
+    background: rgba(26, 26, 46, 0.4);
+}
+
+.smart-recommendations-table tbody tr:hover {
+    background: rgba(102, 126, 234, 0.15);
+    box-shadow: inset 0 0 8px rgba(168, 85, 247, 0.1);
+}
+
+.smart-recommendations-table td {
+    padding: 12px 12px;
+    color: #e0e0e0;
+    vertical-align: middle;
+}
+
+/* Row number styling */
+.row-number {
+    font-weight: 700;
+    color: #667eea;
+    text-align: center;
+    width: 35px;
+    min-width: 35px;
+}
+
+/* Symbol cell styling */
+.symbol-cell {
+    font-weight: 600;
+    color: #a855f7;
+    min-width: 100px;
+}
+
+.symbol-cell strong {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 14px;
+}
+
+.stock-name {
+    font-size: 11px;
+    color: #8b9abb;
+    font-weight: 400;
+}
+
+/* Action cell styling */
+.action-cell {
+    min-width: 130px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.trading-action {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    width: fit-content;
+}
+
+.trading-action.strong-buy {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.3), rgba(16, 185, 129, 0.2));
+    color: #22c55e;
+    border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.trading-action.buy {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(37, 99, 235, 0.2));
+    color: #3b82f6;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+}
+
+.trading-action.hold {
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.3), rgba(249, 115, 22, 0.2));
+    color: #fb923c;
+    border: 1px solid rgba(251, 146, 60, 0.4);
+}
+
+.trading-action.avoid {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(220, 38, 38, 0.2));
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.accumulation-badge {
+    font-size: 10px;
+    color: #8b9abb;
+    font-weight: 400;
+}
+
+/* Price cells styling */
+.entry-cell,
+.stoploss-cell {
+    text-align: right;
+    min-width: 100px;
+    font-weight: 600;
+    color: #3b82f6;
+}
+
+.entry-cell strong {
+    display: block;
+    color: #22c55e;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+
+.stoploss-cell {
+    color: #ef4444;
+}
+
+/* Target cells styling */
+.target-cell {
+    text-align: right;
+    min-width: 95px;
+    color: #a855f7;
+    font-weight: 500;
+}
+
+.target-1 {
+    color: #10b981;
+}
+
+.target-2 {
+    color: #3b82f6;
+}
+
+.target-3 {
+    color: #f59e0b;
+}
+
+/* Catalyst cell styling */
+.catalyst-cell {
+    min-width: 120px;
+}
+
+.catalyst-cell {
+    font-size: 12px;
+    font-weight: 500;
+    color: #a855f7;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.bandar-type {
+    font-size: 10px;
+    color: #8b9abb;
+    font-weight: 400;
+}
+
+/* Confidence cell styling */
+.confidence-cell {
+    min-width: 90px;
+    text-align: center;
+}
+
+.confidence-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    border-radius: 8px;
+    position: relative;
+    overflow: hidden;
+    font-weight: 700;
+    font-size: 11px;
+    background: rgba(42, 42, 78, 0.5);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.confidence-bar::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: var(--confidence, 50%);
+    border-radius: 8px;
+    z-index: -1;
+}
+
+.confidence-bar.high::before {
+    background: linear-gradient(90deg, rgba(34, 197, 94, 0.5), rgba(16, 185, 129, 0.3));
+}
+
+.confidence-bar.medium::before {
+    background: linear-gradient(90deg, rgba(59, 130, 246, 0.5), rgba(37, 99, 235, 0.3));
+}
+
+.confidence-bar.low::before {
+    background: linear-gradient(90deg, rgba(251, 146, 60, 0.5), rgba(249, 115, 22, 0.3));
+}
+
+.confidence-text {
+    color: #e0e0e0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Timeframe cell styling */
+.timeframe-cell {
+    text-align: center;
+    min-width: 90px;
+    color: #a855f7;
+    font-weight: 500;
+}
+
+/* Strategy cell styling */
+.strategy-cell {
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.strategy-cell {
+    font-size: 12px;
+    color: #3b82f6;
+    font-weight: 500;
+}
+
+.risk-reward {
+    font-size: 10px;
+    color: #8b9abb;
+    font-weight: 400;
+}
+
+/* Trading Legend */
+.trading-legend {
+    margin-top: 18px;
+    padding: 14px;
+    background: rgba(26, 26, 46, 0.4);
+    border: 1px solid rgba(168, 85, 247, 0.15);
+    border-radius: 10px;
+}
+
+.legend-title {
+    color: #a855f7;
+    font-weight: 700;
+    font-size: 12px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #8b9abb;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.legend-color.strong-buy {
+    background: linear-gradient(135deg, #22c55e, #10b981);
+}
+
+.legend-color.buy {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+
+.legend-color.hold {
+    background: linear-gradient(135deg, #fb923c, #f59e0b);
+}
+
+.legend-color.avoid {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* ===== RESPONSIVE DESIGN FOR SMART TABLE ===== */
+
+@media (max-width: 1024px) {
+    .smart-recommendations-table {
+        font-size: 12px;
+    }
+
+    .smart-recommendations-table th {
+        padding: 11px 9px;
+        font-size: 10px;
+    }
+
+    .smart-recommendations-table td {
+        padding: 10px 9px;
+    }
+
+    .symbol-cell strong {
+        font-size: 12px;
+    }
+
+    .stock-name {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .smart-pattern-recommendations {
+        padding: 15px;
+        margin-top: 18px;
+    }
+
+    .section-title {
+        font-size: 1.1rem;
+    }
+
+    .recommendation-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .recommendations-table-container {
+        border-radius: 8px;
+    }
+
+    .smart-recommendations-table {
+        font-size: 11px;
+    }
+
+    .smart-recommendations-table th {
+        padding: 10px 7px;
+        font-size: 9px;
+    }
+
+    .smart-recommendations-table td {
+        padding: 8px 7px;
+    }
+
+    .row-number {
+        width: 30px;
+        min-width: 30px;
+        font-size: 11px;
+    }
+
+    .symbol-cell {
+        min-width: 85px;
+    }
+
+    .symbol-cell strong {
+        font-size: 12px;
+    }
+
+    .stock-name {
+        font-size: 9px;
+    }
+
+    .action-cell {
+        min-width: 110px;
+        gap: 4px;
+    }
+
+    .trading-action {
+        padding: 3px 8px;
+        font-size: 9px;
+    }
+
+    .accumulation-badge {
+        font-size: 9px;
+    }
+
+    .entry-cell,
+    .stoploss-cell,
+    .target-cell {
+        min-width: 80px;
+        font-size: 11px;
+    }
+
+    .entry-cell strong {
+        font-size: 12px;
+    }
+
+    .catalyst-cell {
+        min-width: 100px;
+        font-size: 11px;
+    }
+
+    .bandar-type {
+        font-size: 9px;
+    }
+
+    .confidence-bar {
+        height: 24px;
+        font-size: 10px;
+    }
+
+    .timeframe-cell {
+        min-width: 75px;
+        font-size: 11px;
+    }
+
+    .strategy-cell {
+        min-width: 120px;
+        font-size: 11px;
+    }
+
+    .risk-reward {
+        font-size: 9px;
+    }
+
+    .legend-items {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+    }
+
+    .legend-item {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 480px) {
+    .smart-pattern-recommendations {
+        padding: 12px;
+        margin-top: 15px;
+        border-radius: 10px;
+    }
+
+    .section-title {
+        font-size: 1rem;
+        margin-bottom: 2px;
+    }
+
+    .recommendation-subtitle {
+        font-size: 0.8rem;
+        margin-bottom: 12px;
+    }
+
+    .smart-recommendations-table {
+        font-size: 10px;
+    }
+
+    .smart-recommendations-table th {
+        padding: 8px 5px;
+        font-size: 8px;
+    }
+
+    .smart-recommendations-table td {
+        padding: 7px 5px;
+    }
+
+    .row-number {
+        width: 25px;
+        min-width: 25px;
+        font-size: 10px;
+    }
+
+    .symbol-cell {
+        min-width: 70px;
+    }
+
+    .symbol-cell strong {
+        font-size: 11px;
+    }
+
+    .stock-name {
+        font-size: 8px;
+    }
+
+    .action-cell {
+        min-width: 95px;
+        gap: 3px;
+    }
+
+    .trading-action {
+        padding: 2px 6px;
+        font-size: 8px;
+    }
+
+    .accumulation-badge {
+        font-size: 8px;
+    }
+
+    .entry-cell,
+    .stoploss-cell,
+    .target-cell {
+        min-width: 70px;
+        font-size: 10px;
+        text-align: center;
+    }
+
+    .entry-cell strong {
+        font-size: 11px;
+    }
+
+    .catalyst-cell {
+        min-width: 85px;
+        font-size: 10px;
+    }
+
+    .bandar-type {
+        font-size: 8px;
+    }
+
+    .confidence-bar {
+        height: 22px;
+        font-size: 9px;
+    }
+
+    .confidence-text {
+        font-size: 8px;
+    }
+
+    .timeframe-cell {
+        min-width: 65px;
+        font-size: 10px;
+    }
+
+    .strategy-cell {
+        min-width: 100px;
+        font-size: 10px;
+    }
+
+    .risk-reward {
+        font-size: 8px;
+    }
+
+    .legend-items {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .legend-item {
+        font-size: 10px;
+    }
+
+    .legend-color {
+        width: 14px;
+        height: 14px;
+    }
+}
+
+/* ===== ENHANCED TABLE & LEGEND SMOOTH ANIMATIONS ===== */
+
+/* Smooth table container entrance animation */
+@keyframes tableSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Smooth row entrance stagger animation */
+@keyframes rowFadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Smooth confidence bar fill animation */
+@keyframes confidenceFill {
+    from {
+        width: 0%;
+    }
+    to {
+        width: var(--confidence, 50%);
+    }
+}
+
+/* Header glow on hover */
+@keyframes headerGlow {
+    0%, 100% {
+        text-shadow: 0 0 8px rgba(168, 85, 247, 0.3);
+    }
+    50% {
+        text-shadow: 0 0 12px rgba(168, 85, 247, 0.6);
+    }
+}
+
+/* Pulsing confidence percentage */
+@keyframes pulseConfidence {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.8;
+    }
+}
+
+/* Apply animations */
+.recommendations-table-container {
+    animation: tableSlideIn 0.5s ease-out;
+}
+
+.smart-recommendations-table tbody tr {
+    animation: rowFadeIn 0.3s ease-out forwards;
+    opacity: 0;
+}
+
+.smart-recommendations-table tbody tr:nth-child(1) { animation-delay: 0.05s; }
+.smart-recommendations-table tbody tr:nth-child(2) { animation-delay: 0.1s; }
+.smart-recommendations-table tbody tr:nth-child(3) { animation-delay: 0.15s; }
+.smart-recommendations-table tbody tr:nth-child(4) { animation-delay: 0.2s; }
+.smart-recommendations-table tbody tr:nth-child(5) { animation-delay: 0.25s; }
+.smart-recommendations-table tbody tr:nth-child(n+6) { animation-delay: 0.3s; }
+
+.confidence-bar::before {
+    animation: confidenceFill 0.8s ease-out forwards;
+}
+
+.smart-recommendations-table th {
+    animation: headerGlow 3s ease-in-out infinite;
+}
+
+.confidence-text {
+    animation: pulseConfidence 2s ease-in-out infinite;
+}
+
+/* Smooth transitions on hover - row highlight */
+.smart-recommendations-table tbody tr:hover {
+    box-shadow: inset 0 0 12px rgba(168, 85, 247, 0.15);
+    transform: translateX(4px);
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Smooth cell highlight on hover */
+.smart-recommendations-table td:hover {
+    color: #a855f7;
+    transition: color 0.2s ease;
+}
+
+/* Trading action buttons smooth hover */
+.trading-action {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+}
+
+.trading-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.trading-action.strong-buy:hover {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.5), rgba(16, 185, 129, 0.4));
+    box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+}
+
+.trading-action.buy:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(37, 99, 235, 0.4));
+    box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.trading-action.hold:hover {
+    background: linear-gradient(135deg, rgba(251, 146, 60, 0.5), rgba(249, 115, 22, 0.4));
+    box-shadow: 0 0 12px rgba(251, 146, 60, 0.4);
+}
+
+.trading-action.avoid:hover {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.5), rgba(220, 38, 38, 0.4));
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+
+/* Legend smooth transitions */
+.trading-legend {
+    animation: tableSlideIn 0.5s ease-out 0.3s backwards;
+}
+
+.legend-item {
+    transition: all 0.3s ease;
+    padding: 6px 8px;
+    border-radius: 6px;
+}
+
+.legend-item:hover {
+    background: rgba(168, 85, 247, 0.1);
+    transform: translateX(4px);
+    padding-left: 12px;
+}
+
+.legend-color {
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.legend-item:hover .legend-color {
+    transform: scale(1.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Price cells smooth number transitions */
+.entry-cell strong,
+.stoploss-cell,
+.target-cell {
+    transition: all 0.3s ease;
+}
+
+.smart-recommendations-table tbody tr:hover .entry-cell strong {
+    color: #4ade80;
+    text-shadow: 0 0 8px rgba(74, 222, 128, 0.3);
+}
+
+.smart-recommendations-table tbody tr:hover .stoploss-cell {
+    color: #f87171;
+    text-shadow: 0 0 8px rgba(248, 113, 113, 0.3);
+}
+
+.smart-recommendations-table tbody tr:hover .target-cell {
+    color: #d8b4fe;
+    text-shadow: 0 0 8px rgba(216, 180, 254, 0.3);
+}
+
+/* Smooth scrollbar appearance */
+.recommendations-table-container::-webkit-scrollbar-thumb {
+    transition: all 0.3s ease;
+}
+
+.recommendations-table-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(168, 85, 247, 0.7);
+    border-radius: 4px;
+}
+
+/* Stock name fade effect */
+.stock-name {
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.smart-recommendations-table tbody tr:hover .stock-name {
+    opacity: 1;
+    color: #a855f7;
+}
+
+/* Confidence bar smooth color transitions */
+.confidence-bar {
+    transition: all 0.3s ease;
+}
+
+.smart-recommendations-table tbody tr:hover .confidence-bar {
+    box-shadow: inset 0 0 8px rgba(168, 85, 247, 0.2);
+    border-color: rgba(168, 85, 247, 0.5);
+}
+
+/* Strategy cell smooth text transitions */
+.strategy-cell {
+    transition: all 0.3s ease;
+}
+
+.smart-recommendations-table tbody tr:hover .strategy-cell {
+    color: #60a5fa;
+}
+
+/* Risk/Reward smooth transitions */
+.risk-reward {
+    transition: all 0.3s ease;
+    opacity: 0.8;
+}
+
+.smart-recommendations-table tbody tr:hover .risk-reward {
+    opacity: 1;
+    color: #a78bfa;
+}
+
+/* Catalyst cell smooth transitions */
+.catalyst-cell {
+    transition: all 0.3s ease;
+}
+
+.smart-recommendations-table tbody tr:hover .catalyst-cell {
+    color: #c084fc;
+}
+
+.bandar-type {
+    transition: all 0.3s ease;
+    opacity: 0.75;
+}
+
+.smart-recommendations-table tbody tr:hover .bandar-type {
+    opacity: 1;
+    color: #a78bfa;
+}
+
+/* Timeframe badge smooth transitions */
+.timeframe-cell {
+    transition: all 0.3s ease;
+}
+
+.smart-recommendations-table tbody tr:hover .timeframe-cell {
+    color: #c084fc;
+    text-shadow: 0 0 6px rgba(192, 132, 252, 0.3);
+}
+
+/* Accumulation badge smooth transitions */
+.accumulation-badge {
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.smart-recommendations-table tbody tr:hover .accumulation-badge {
+    opacity: 1;
+    color: #a855f7;
+}
+
+/* Row number smooth color change */
+.row-number {
+    transition: all 0.3s ease;
+}
+
+.smart-recommendations-table tbody tr:hover .row-number {
+    color: #60a5fa;
+    text-shadow: 0 0 6px rgba(96, 165, 250, 0.3);
+}
+
+/* Smooth section title appearance */
+.section-title {
+    animation: fadeInDown 0.6s ease-out;
+}
+
+.recommendation-subtitle {
+    animation: fadeInDown 0.6s ease-out 0.1s backwards;
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Table header sticky positioning smooth effect */
+.smart-recommendations-table thead tr {
+    transition: all 0.3s ease;
+}
+
+/* Smooth focus state for accessibility */
+.smart-recommendations-table tbody tr:focus-within {
+    background: rgba(102, 126, 234, 0.2);
+    outline: 2px solid rgba(168, 85, 247, 0.3);
+    outline-offset: -2px;
+}
+
+/* Smooth color palette transitions for different action types */
+.trading-action.strong-buy {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trading-action.buy {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trading-action.hold {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.trading-action.avoid {
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}

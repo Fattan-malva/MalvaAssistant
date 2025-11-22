@@ -12,7 +12,7 @@ const TRADING_CRITERIA = {
     'MAX_FROM_ATH': 30,
     'MIN_PRICE': 50,
     'MAX_PRICE': 50000,
-    
+
     // Early Detection Criteria
     'MIN_ACCUMULATION_VOLUME': 1.3,
     'MAX_ACCUMULATION_VOLUME': 3.0,
@@ -21,12 +21,12 @@ const TRADING_CRITERIA = {
     'MID_CAP_MAX': 5000000000000,
     'LARGE_CAP_MIN': 5000000000000,
     'CORP_ACTION_DAYS': 30,
-    
+
     // Safety Filters
     'MAX_PE_RATIO': 50,
     'MIN_MARKET_CAP': 100000000000,
     'MAX_VOLATILITY': 15,
-    
+
     // Corporate Action Thresholds
     'DIVIDEND_YIELD_MIN': 2.5,
     'STOCK_SPLIT_PRICE_MIN': 5000,
@@ -37,7 +37,7 @@ const TRADING_CRITERIA = {
 const SCAM_FILTERS = {
     'PUMP_DUMP_PATTERNS': [
         'volume > 10x && changePercent > 25',
-        'price < 100 && volume > 5x', 
+        'price < 100 && volume > 5x',
         'changePercent > 50'
     ],
     'FUNDAMENTAL_RED_FLAGS': [
@@ -57,7 +57,7 @@ const CORPORATE_ACTIONS = {
         timeframe: 'SHORT_TERM'
     },
     'STOCK_DIVIDEND': {
-        name: 'Stock Dividend', 
+        name: 'Stock Dividend',
         impactScore: 65,
         preDateEffect: 'POSITIVE',
         postDateEffect: 'NEUTRAL',
@@ -133,7 +133,7 @@ startBtn.addEventListener('click', async () => {
         // Fetch all stocks in batches
         for (let start = 0; start < totalStocks; start += batchSize) {
             const end = Math.min(start + batchSize, totalStocks);
-            addProgress(`⏳ Fetching ${start + 1} to ${end} dari ${totalStocks}...`, true);
+            addProgress(`⏳ Fetching ${start + 1} to ${end} / ${totalStocks} saham...`, true);
 
             const batchPromises = [];
             for (let i = start; i < end; i++) {
@@ -208,12 +208,12 @@ startBtn.addEventListener('click', async () => {
                 riskLevel = "HIGH";
                 tradingSignals.push("🚨 SMALLCAP RISKY");
             }
-            
+
             if (peRatio > 100) {
                 riskLevel = "HIGH";
                 tradingSignals.push("🚨 VALUASI TINGGI");
             }
-            
+
             if (changePercent > 25 && volumeRatio > 5) {
                 return { ...stock, score: 0, filtered: true, riskLevel: "PUMP_DUMP" };
             }
@@ -258,10 +258,10 @@ startBtn.addEventListener('click', async () => {
                     score += ca.impactScore;
                     tradingSignals.push(`🎯 ${ca.type.name}`);
                     entryReasons.push(`${ca.type.name} detected - ${ca.daysToEvent} hari menuju ${ca.nextEvent}`);
-                    
+
                     // Set early entry price based on corporate action type
                     if (!earlyEntryPrice) {
-                        switch(ca.type.name) {
+                        switch (ca.type.name) {
                             case 'Stock Split':
                                 earlyEntryPrice = price * 0.97;
                                 break;
@@ -295,7 +295,7 @@ startBtn.addEventListener('click', async () => {
             }
 
             // 🎯 ACCUMULATION PATTERN DETECTION (BANDAR MASUK DINI)
-            const isSubtleAccumulation = 
+            const isSubtleAccumulation =
                 volumeRatio >= TRADING_CRITERIA.MIN_ACCUMULATION_VOLUME &&
                 volumeRatio <= TRADING_CRITERIA.MAX_ACCUMULATION_VOLUME &&
                 changePercent <= TRADING_CRITERIA.MAX_PRE_PUMP_CHANGE &&
@@ -443,9 +443,9 @@ startBtn.addEventListener('click', async () => {
         // 🔥 ENHANCED FILTERING - Prioritize Multi-Layer Confirmation
         const qualifiedStocks = scoredStocks.filter(stock =>
             !stock.filtered &&
-            stock.score >= 40 &&
+            stock.score >= 35 && // Lowered threshold from 40 to 35 for more inclusiveness
             parseFloat(stock.volumeRatio) >= TRADING_CRITERIA.MIN_VOLUME_RATIO &&
-            stock.riskLevel !== "HIGH"
+            (stock.riskLevel === "LOW" || stock.riskLevel === "MEDIUM") // Allow MEDIUM risk too
         );
 
         // Sort by accumulation score first, then corporate action score, then overall score
@@ -492,7 +492,7 @@ SAHAM POTENSIAL DENGAN MULTI-LAYER CONFIRMATION (${topStocks.length} dari ${stoc
             const marketCap = parseFloat(stock.marketCap) || 0;
             const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
             const peRatio = parseFloat(stock.fullData?.trailingPE) || 0;
-            
+
             prompt += `
 ${idx + 1}. ${stock.symbol} - ${stock.name}
    💰 Price: Rp ${stock.price} | 🎯 Early Entry: Rp ${stock.earlyEntryPrice || stock.price}
@@ -506,14 +506,14 @@ ${idx + 1}. ${stock.symbol} - ${stock.name}
    - Asing Flow: ${stock.foreignNetBuy}
    
    🎯 SMART CORPORATE ACTION DETECTION:
-   ${stock.corporateActions.length > 0 ? stock.corporateActions.map(ca => 
-     `   - ${ca.type.name}: ${ca.daysToEvent} hari menuju ${ca.nextEvent} (Impact: ${ca.impactScore})`
-   ).join('\n') : '   - No clear corporate action detected'}
+   ${stock.corporateActions.length > 0 ? stock.corporateActions.map(ca =>
+                `   - ${ca.type.name}: ${ca.daysToEvent} hari menuju ${ca.nextEvent} (Impact: ${ca.impactScore})`
+            ).join('\n') : '   - No clear corporate action detected'}
    
    🔍 PATTERN RECOGNITION:
-   ${stock.corporatePatterns.length > 0 ? stock.corporatePatterns.map(pattern => 
-     `   - ${pattern.type}: ${pattern.trigger} (Confidence: ${(pattern.confidence * 100).toFixed(0)}%)`
-   ).join('\n') : '   - No specific patterns detected'}
+   ${stock.corporatePatterns.length > 0 ? stock.corporatePatterns.map(pattern =>
+                `   - ${pattern.type}: ${pattern.trigger} (Confidence: ${(pattern.confidence * 100).toFixed(0)}%)`
+            ).join('\n') : '   - No specific patterns detected'}
    
    📰 MARKET SENTIMENT: ${stock.newsSentiment.sentiment}
    🔍 Keywords: ${stock.newsSentiment.keywords.join(', ') || 'None'}
@@ -625,8 +625,8 @@ BERIKAN CONFIDENCE LEVEL:
         addProgress('✅ SMART PATTERN analysis complete!');
 
         // 🎯 DISPLAY ENHANCED RESULTS
-        const earlyDetectionStocks = topStocks.filter(stock => 
-            stock.accumulationScore > 20 || 
+        const earlyDetectionStocks = topStocks.filter(stock =>
+            stock.accumulationScore > 20 ||
             stock.expectedCatalyst
         );
 
@@ -641,6 +641,9 @@ BERIKAN CONFIDENCE LEVEL:
         const corporateActionStocks = topStocks
             .filter(stock => stock.corporateActions.length > 0)
             .slice(0, 5);
+
+        // Generate Smart Pattern Recommendations and prepare summary
+        const smartRecommendations = generateSmartPatternRecommendations(topStocks);
 
         const summaryHtml = `
             <div class="trading-summary">
@@ -669,6 +672,7 @@ BERIKAN CONFIDENCE LEVEL:
             ${displayEarlyDetectionResults(earlyDetectionStocks)}
             ${displayCorporateActionResults(topStocks)}
             ${displayCorporateActionPatterns(topStocks)}
+            ${displaySmartPatternRecommendations(smartRecommendations)}
         `;
 
         const formattedHtml = formatTradingAnalysis(analysisText);
@@ -692,7 +696,7 @@ BERIKAN CONFIDENCE LEVEL:
 function detectCorporateActions(stock) {
     const actions = [];
     const today = new Date();
-    
+
     // Data yang tersedia dari API existing
     const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
     const earningsDate = stock.fullData?.earningsTimestampStart;
@@ -703,13 +707,13 @@ function detectCorporateActions(stock) {
     const averageVolume = parseFloat(stock.fullData?.averageDailyVolume3Month) || volume;
     const volumeRatio = averageVolume > 0 ? volume / averageVolume : 1;
     const marketCap = parseFloat(stock.marketCap) || 0;
-    
+
     // 🎯 DETEKSI 1: CASH DIVIDEND
     if (dividendYield > TRADING_CRITERIA.DIVIDEND_YIELD_MIN) {
-        const daysToDiv = dividendDate ? 
-            Math.ceil((new Date(dividendDate * 1000) - today) / (1000 * 60 * 60 * 24)) : 
+        const daysToDiv = dividendDate ?
+            Math.ceil((new Date(dividendDate * 1000) - today) / (1000 * 60 * 60 * 24)) :
             Math.floor(Math.random() * 30) + 10;
-        
+
         if (daysToDiv > 0 && daysToDiv <= 45) {
             actions.push({
                 type: CORPORATE_ACTIONS.CASH_DIVIDEND,
@@ -722,7 +726,7 @@ function detectCorporateActions(stock) {
             });
         }
     }
-    
+
     // 🎯 DETEKSI 2: STOCK SPLIT POTENTIAL
     if (price > TRADING_CRITERIA.STOCK_SPLIT_PRICE_MIN && volumeRatio > 1.8) {
         actions.push({
@@ -735,10 +739,10 @@ function detectCorporateActions(stock) {
             details: `High price (Rp ${price}) + Volume spike ${volumeRatio.toFixed(1)}x`
         });
     }
-    
+
     // 🎯 DETEKSI 3: BONUS SHARE PATTERN
-    if (marketCap < TRADING_CRITERIA.SMALL_CAP_MAX && 
-        price < TRADING_CRITERIA.BONUS_SHARE_PRICE_MAX && 
+    if (marketCap < TRADING_CRITERIA.SMALL_CAP_MAX &&
+        price < TRADING_CRITERIA.BONUS_SHARE_PRICE_MAX &&
         volumeRatio > 1.5) {
         actions.push({
             type: CORPORATE_ACTIONS.BONUS_SHARE,
@@ -750,12 +754,12 @@ function detectCorporateActions(stock) {
             details: `Small cap accumulation - Price Rp ${price} + Volume ${volumeRatio.toFixed(1)}x`
         });
     }
-    
+
     // 🎯 DETEKSI 4: EARNINGS PLAY
     if (earningsDate) {
         const earningsDay = new Date(earningsDate * 1000);
         const daysToEarnings = Math.ceil((earningsDay - today) / (1000 * 60 * 60 * 24));
-        
+
         if (daysToEarnings > 0 && daysToEarnings <= 30) {
             actions.push({
                 type: {
@@ -773,7 +777,7 @@ function detectCorporateActions(stock) {
             });
         }
     }
-    
+
     return actions;
 }
 
@@ -784,52 +788,52 @@ function analyzeNewsSentiment(stock) {
         sentiment: 'NEUTRAL',
         keywords: []
     };
-    
+
     const changePercent = parseFloat(stock.changePercent) || 0;
     const volume = parseFloat(stock.volume) || 0;
     const averageVolume = parseFloat(stock.fullData?.averageDailyVolume3Month) || volume;
     const volumeRatio = averageVolume > 0 ? volume / averageVolume : 1;
     const foreignNetBuy = stock.fullData?.foreignNetBuy || 0;
     const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
-    
+
     // 🎯 DETEKSI SENTIMENT DARI PRICE & VOLUME ACTION
     if (volumeRatio > 2 && changePercent > 3) {
         sentiment.score = 30;
         sentiment.sentiment = 'POSITIVE';
         sentiment.keywords.push('volume spike', 'price breakout');
     }
-    
+
     if (foreignNetBuy > 1000000000) {
         sentiment.score += 20;
         sentiment.sentiment = 'POSITIVE';
         sentiment.keywords.push('foreign buy', 'institutional interest');
     }
-    
+
     if (changePercent > 7) {
         sentiment.score += 25;
         sentiment.sentiment = 'POSITIVE';
         sentiment.keywords.push('strong momentum', 'breakout');
     }
-    
+
     if (dividendYield > 3) {
         sentiment.score += 15;
         sentiment.sentiment = 'POSITIVE';
         sentiment.keywords.push('high dividend', 'income play');
     }
-    
+
     // 🎯 DETEKSI NEGATIVE SENTIMENT
     if (changePercent < -5) {
         sentiment.score = -20;
         sentiment.sentiment = 'NEGATIVE';
         sentiment.keywords.push('price decline', 'sell pressure');
     }
-    
+
     if (volumeRatio > 2 && changePercent < -3) {
         sentiment.score = -25;
         sentiment.sentiment = 'NEGATIVE';
         sentiment.keywords.push('distribution', 'smart money sell');
     }
-    
+
     return sentiment;
 }
 
@@ -842,7 +846,7 @@ function detectCorporateActionPatterns(stock) {
     const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
     const foreignNetBuy = stock.fullData?.foreignNetBuy || 0;
     const changePercent = parseFloat(stock.changePercent) || 0;
-    
+
     // Pattern 1: Dividend Play Pattern
     if (dividendYield > TRADING_CRITERIA.DIVIDEND_YIELD_MIN && volumeRatio > 1.3) {
         patterns.push({
@@ -853,32 +857,32 @@ function detectCorporateActionPatterns(stock) {
             target: "5-12%"
         });
     }
-    
+
     // Pattern 2: Stock Split Potential
     if (price > TRADING_CRITERIA.STOCK_SPLIT_PRICE_MIN && volumeRatio > 1.8) {
         patterns.push({
-            type: "STOCK_SPLIT_POTENTIAL", 
+            type: "STOCK_SPLIT_POTENTIAL",
             confidence: 0.6 + (foreignNetBuy > 0 ? 0.2 : 0),
             trigger: `High price (Rp ${price}) + Institutional interest ${volumeRatio.toFixed(1)}x`,
             timeframe: "1-3 months",
             target: "15-35%"
         });
     }
-    
+
     // Pattern 3: Bonus Share Anticipation
-    if (marketCap < TRADING_CRITERIA.SMALL_CAP_MAX && 
-        volumeRatio > 1.5 && 
+    if (marketCap < TRADING_CRITERIA.SMALL_CAP_MAX &&
+        volumeRatio > 1.5 &&
         price < TRADING_CRITERIA.BONUS_SHARE_PRICE_MAX &&
         changePercent < 5) {
         patterns.push({
             type: "BONUS_SHARE_ANTICIPATION",
             confidence: 0.5 + (volumeRatio > 2 ? 0.3 : 0),
             trigger: `Small cap + Retail accumulation + Price Rp ${price}`,
-            timeframe: "3-6 weeks", 
+            timeframe: "3-6 weeks",
             target: "10-25%"
         });
     }
-    
+
     // Pattern 4: Earnings Momentum
     const earningsDate = stock.fullData?.earningsTimestampStart;
     if (earningsDate && volumeRatio > 1.4) {
@@ -890,7 +894,7 @@ function detectCorporateActionPatterns(stock) {
             target: "8-20%"
         });
     }
-    
+
     // Pattern 5: Pure Bandar Accumulation
     if (volumeRatio >= TRADING_CRITERIA.MIN_ACCUMULATION_VOLUME &&
         volumeRatio <= TRADING_CRITERIA.MAX_ACCUMULATION_VOLUME &&
@@ -903,21 +907,21 @@ function detectCorporateActionPatterns(stock) {
             target: "15-40%"
         });
     }
-    
+
     return patterns;
 }
 
 // 🔥 NEW FUNCTION: Calculate Price Targets Based on Multiple Factors
 function calculatePriceTargets(price, bandarType, corporateActions) {
     let baseMultipliers = [1.08, 1.15, 1.20]; // Default for large cap
-    
+
     // Adjust based on bandar type
     if (bandarType === "BANDAR LOKAL") {
         baseMultipliers = [1.15, 1.25, 1.40];
     } else if (bandarType === "BANDAR BESAR + ASING") {
         baseMultipliers = [1.10, 1.18, 1.25];
     }
-    
+
     // Adjust based on corporate actions
     if (corporateActions.length > 0) {
         const action = corporateActions[0];
@@ -929,26 +933,26 @@ function calculatePriceTargets(price, bandarType, corporateActions) {
             baseMultipliers = baseMultipliers.map(m => m * 1.05);
         }
     }
-    
+
     return baseMultipliers.map(mult => (price * mult).toFixed(2));
 }
 
 // 🎯 NEW FUNCTION: Display Early Detection Results
 function displayEarlyDetectionResults(stocks) {
     if (stocks.length === 0) return '';
-    
+
     let html = `
     <div class="early-detection-section">
         <h2 class="section-title">🕵️ EARLY BANDAR DETECTION OPPORTUNITIES</h2>
         <div class="early-grid">
     `;
-    
+
     stocks.slice(0, 8).forEach(stock => {
         const targetArray = stock.priceTargets || [];
-        const targets = targetArray.length >= 3 
+        const targets = targetArray.length >= 3
             ? `${targetArray[0]} → ${targetArray[1]} → ${targetArray[2]}`
             : targetArray.join(' → ');
-        
+
         html += `
         <div class="early-card">
             <div class="card-title">${stock.symbol}</div>
@@ -981,34 +985,34 @@ function displayEarlyDetectionResults(stocks) {
         </div>
         `;
     });
-    
+
     html += `</div></div>`;
     return html;
 }
 
 // 🔥 NEW FUNCTION: Display Corporate Action Results
 function displayCorporateActionResults(stocks) {
-    const stocksWithActions = stocks.filter(stock => 
+    const stocksWithActions = stocks.filter(stock =>
         stock.corporateActions && stock.corporateActions.length > 0
     );
-    
+
     if (stocksWithActions.length === 0) return '';
-    
+
     let html = `
     <div class="corporate-action-section">
         <h2 class="section-title">📰 SMART CORPORATE ACTION DETECTION</h2>
         <div class="corporate-action-grid">
     `;
-    
+
     stocksWithActions.slice(0, 6).forEach(stock => {
         const actions = stock.corporateActions || [];
         const news = stock.newsSentiment || { sentiment: 'NEUTRAL', keywords: [] };
         const action = actions[0];
-        
+
         let sentimentColor = 'neutral';
         if (news.sentiment === 'POSITIVE') sentimentColor = 'positive';
         else if (news.sentiment === 'NEGATIVE') sentimentColor = 'negative';
-        
+
         html += `
         <div class="corporate-card ${sentimentColor}">
             <div class="card-header">
@@ -1041,25 +1045,25 @@ function displayCorporateActionResults(stocks) {
         </div>
         `;
     });
-    
+
     html += `</div></div>`;
     return html;
 }
 
 // 🔥 NEW FUNCTION: Display Corporate Action Patterns
 function displayCorporateActionPatterns(stocks) {
-    const stocksWithPatterns = stocks.filter(stock => 
+    const stocksWithPatterns = stocks.filter(stock =>
         stock.corporatePatterns && stock.corporatePatterns.length > 0
     );
-    
+
     if (stocksWithPatterns.length === 0) return '';
-    
+
     let html = `
     <div class="pattern-detection-section">
         <h3>🔍 SMART PATTERN RECOGNITION</h3>
         <div class="pattern-grid">
     `;
-    
+
     stocksWithPatterns.slice(0, 8).forEach(stock => {
         html += `
         <div class="pattern-card">
@@ -1081,9 +1085,344 @@ function displayCorporateActionPatterns(stocks) {
         </div>
         `;
     });
-    
+
     html += `</div></div>`;
     return html;
+}
+
+// 🔥 NEW FUNCTION: Generate Smart Pattern Trading Recommendations
+function generateSmartPatternRecommendations(topStocks) {
+    const recommendations = [];
+
+    // Filter and limit to top 15 recommendations with best confidence
+    const bestStocks = topStocks.slice(0, 15);
+
+    bestStocks.forEach(stock => {
+        // Determine trading action based on multiple factors
+        let action = determineTradingAction(stock);
+        let confidence = calculateConfidenceLevel(stock);
+        let timeframe = determineTimeframe(stock);
+        let strategy = generateTradingStrategy(stock);
+
+        recommendations.push({
+            symbol: stock.symbol,
+            name: stock.name,
+            action: action,
+            entry: stock.earlyEntryPrice || stock.price,
+            stopLoss: stock.stopLoss,
+            target1: stock.priceTargets?.[0] || 'N/A',
+            target2: stock.priceTargets?.[1] || 'N/A',
+            target3: stock.priceTargets?.[2] || 'N/A',
+            catalyst: getPrimaryCatalyst(stock),
+            confidence: confidence,
+            timeframe: timeframe,
+            strategy: strategy,
+            riskReward: stock.riskReward || 'N/A',
+            accumulationScore: stock.accumulationScore,
+            bandarType: stock.bandarType
+        });
+    });
+
+    // Sort by confidence level (descending)
+    recommendations.sort((a, b) => b.confidence - a.confidence);
+
+    return recommendations;
+}
+
+// 🔥 NEW FUNCTION: Determine Trading Action
+function determineTradingAction(stock) {
+    const accumulationScore = stock.accumulationScore;
+    const corporateActions = stock.corporateActions.length;
+    const riskLevel = stock.riskLevel;
+    const volumeRatio = parseFloat(stock.volumeRatio);
+    const changePercent = parseFloat(stock.changePercent);
+
+    // STRONG BUY conditions
+    if (accumulationScore > 30 && corporateActions > 0 && riskLevel === "LOW") {
+        return "STRONG BUY";
+    }
+
+    // BUY conditions
+    if (accumulationScore > 25 && volumeRatio > 1.5 && changePercent < 10) {
+        return "BUY";
+    }
+
+    // HOLD conditions
+    if (changePercent > 15 || riskLevel === "HIGH") {
+        return "HOLD";
+    }
+
+    // AVOID conditions
+    if (changePercent > 25 || volumeRatio > 5) {
+        return "AVOID";
+    }
+
+    return "BUY"; // Default
+}
+
+// 🔥 NEW FUNCTION: Calculate Confidence Level
+function calculateConfidenceLevel(stock) {
+    let confidence = 70; // Base confidence
+
+    // Accumulation score boost
+    confidence += Math.min(stock.accumulationScore, 30);
+
+    // Corporate action boost
+    if (stock.corporateActions.length > 0) {
+        confidence += 15;
+    }
+
+    // Volume confirmation boost
+    const volumeRatio = parseFloat(stock.volumeRatio);
+    if (volumeRatio > 2) {
+        confidence += 10;
+    }
+
+    // Foreign flow boost
+    if (stock.foreignNetBuy && stock.foreignNetBuy.includes('+')) {
+        confidence += 5;
+    }
+
+    // Risk adjustment
+    if (stock.riskLevel === "HIGH") {
+        confidence -= 20;
+    }
+
+    return Math.min(Math.max(confidence, 50), 95); // Cap between 50-95%
+}
+
+// 🔥 NEW FUNCTION: Determine Timeframe
+function determineTimeframe(stock) {
+    if (stock.corporateActions.length > 0) {
+        const action = stock.corporateActions[0];
+        if (action.daysToEvent <= 15) return "SHORT (1-2 weeks)";
+        if (action.daysToEvent <= 30) return "MEDIUM (2-4 weeks)";
+        return "LONG (1-3 months)";
+    }
+
+    const accumulationScore = stock.accumulationScore;
+    if (accumulationScore > 30) return "SHORT (1-2 weeks)";
+    if (accumulationScore > 20) return "MEDIUM (2-4 weeks)";
+    return "LONG (1-3 months)";
+}
+
+// 🔥 NEW FUNCTION: Get Primary Catalyst
+function getPrimaryCatalyst(stock) {
+    if (stock.corporateActions.length > 0) {
+        return stock.corporateActions[0].type.name;
+    }
+
+    if (stock.accumulationScore > 30) {
+        return "Bandar Accumulation";
+    }
+
+    if (parseFloat(stock.volumeRatio) > 2.5) {
+        return "Volume Breakout";
+    }
+
+    if (stock.foreignNetBuy && stock.foreignNetBuy.includes('+')) {
+        return "Foreign Accumulation";
+    }
+
+    return "Technical Breakout";
+}
+
+// 🔥 NEW FUNCTION: Generate Trading Strategy
+function generateTradingStrategy(stock) {
+    const strategies = [];
+
+    // Accumulation based strategy
+    if (stock.accumulationScore > 25) {
+        strategies.push("Accumulate on weakness");
+    }
+
+    // Volume based strategy
+    const volumeRatio = parseFloat(stock.volumeRatio);
+    if (volumeRatio > 2) {
+        strategies.push("Volume confirmation");
+    }
+
+    // Corporate action strategy
+    if (stock.corporateActions.length > 0) {
+        const action = stock.corporateActions[0];
+        switch (action.type.name) {
+            case 'Stock Split':
+                strategies.push("Pre-split accumulation");
+                break;
+            case 'Cash Dividend':
+                strategies.push("Pre-cum date play");
+                break;
+            case 'Earnings Report':
+                strategies.push("Pre-earnings momentum");
+                break;
+            default:
+                strategies.push("Corporate action play");
+        }
+    }
+
+    // Bandar type strategy
+    switch (stock.bandarType) {
+        case "BANDAR LOKAL":
+            strategies.push("Quick flip strategy");
+            break;
+        case "BANDAR BESAR + ASING":
+            strategies.push("Momentum follow");
+            break;
+        case "ASING INSTITUTIONAL":
+            strategies.push("Swing trade");
+            break;
+    }
+
+    return strategies.join(" + ");
+}
+
+// 🔥 NEW FUNCTION: Display Smart Pattern Recommendations
+function displaySmartPatternRecommendations(recommendations) {
+    if (recommendations.length === 0) {
+        return `
+        <div class="smart-pattern-recommendations">
+            <h2 class="section-title">🎯 SMART PATTERN TRADING RECOMMENDATIONS</h2>
+            <div class="recommendation-subtitle">
+                No suitable trading recommendations found. Try broadening your criteria or refreshing the analysis.
+            </div>
+            <div class="trading-legend">
+                <div class="legend-title">📊 Legend:</div>
+                <div class="legend-items">
+                    <div class="legend-item">
+                        <span class="legend-color strong-buy"></span>
+                        <span>STRONG BUY: High conviction opportunities</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color buy"></span>
+                        <span>BUY: Good trading setups</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color hold"></span>
+                        <span>HOLD: Wait for better entry</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color avoid"></span>
+                        <span>AVOID: High risk or overbought</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+    }
+
+    let html = `
+    <div class="smart-pattern-recommendations">
+        <h2 class="section-title">🎯 SMART PATTERN TRADING RECOMMENDATIONS</h2>
+        <div class="recommendation-subtitle">Rangkuman Trading Opportunities yang Bisa Di-Entry Sekarang</div>
+        
+        <div class="recommendations-table-container">
+            <table class="smart-recommendations-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Symbol</th>
+                        <th>Action</th>
+                        <th>Entry Price</th>
+                        <th>Stop Loss</th>
+                        <th>Target 1</th>
+                        <th>Target 2</th>
+                        <th>Target 3</th>
+                        <th>Catalyst</th>
+                        <th>Confidence</th>
+                        <th>Timeframe</th>
+                        <th>Strategy</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    recommendations.forEach((rec, index) => {
+        const actionClass = rec.action.replace(' ', '-').toLowerCase();
+        const confidenceLevel = getConfidenceLevelClass(rec.confidence);
+
+        html += `
+                    <tr class="recommendation-row">
+                        <td class="row-number">${index + 1}</td>
+                        <td class="symbol-cell">
+                            <strong>${rec.symbol}</strong>
+                            <div class="stock-name">${rec.name}</div>
+                        </td>
+                        <td class="action-cell">
+                            <span class="trading-action ${actionClass}">${rec.action}</span>
+                            <div class="accumulation-badge">Acc: ${rec.accumulationScore}</div>
+                        </td>
+                        <td class="entry-cell">
+                            <strong>Rp ${rec.entry}</strong>
+                        </td>
+                        <td class="stoploss-cell">
+                            Rp ${rec.stopLoss}
+                        </td>
+                        <td class="target-cell target-1">
+                            Rp ${rec.target1}
+                        </td>
+                        <td class="target-cell target-2">
+                            Rp ${rec.target2}
+                        </td>
+                        <td class="target-cell target-3">
+                            Rp ${rec.target3}
+                        </td>
+                        <td class="catalyst-cell">
+                            ${rec.catalyst}
+                            <div class="bandar-type">${rec.bandarType}</div>
+                        </td>
+                        <td class="confidence-cell">
+                            <div class="confidence-bar ${confidenceLevel}" style="--confidence: ${rec.confidence}%">
+                                <span class="confidence-text">${rec.confidence}%</span>
+                            </div>
+                        </td>
+                        <td class="timeframe-cell">
+                            ${rec.timeframe}
+                        </td>
+                        <td class="strategy-cell">
+                            ${rec.strategy}
+                            <div class="risk-reward">R/R: 1:${rec.riskReward}</div>
+                        </td>
+                    </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="trading-legend">
+            <div class="legend-title">📊 Legend:</div>
+            <div class="legend-items">
+                <div class="legend-item">
+                    <span class="legend-color strong-buy"></span>
+                    <span>STRONG BUY: High conviction opportunities</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color buy"></span>
+                    <span>BUY: Good trading setups</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color hold"></span>
+                    <span>HOLD: Wait for better entry</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-color avoid"></span>
+                    <span>AVOID: High risk or overbought</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    `;
+
+    return html;
+}
+
+// 🔥 NEW FUNCTION: Get Confidence Level Class
+function getConfidenceLevelClass(confidence) {
+    if (confidence >= 85) return 'confidence-high';
+    if (confidence >= 75) return 'confidence-medium';
+    return 'confidence-low';
 }
 
 // 🔥 NEW FUNCTION: Generate Trading Advice for Corporate Actions
@@ -1091,15 +1430,15 @@ function generateCorporateActionAdvice(actions, news) {
     if (actions.length === 0) {
         return news.sentiment === 'POSITIVE' ? 'Consider buy - positive sentiment' : 'Wait - no clear catalyst';
     }
-    
+
     const action = actions[0];
     const days = action.daysToEvent;
-    
-    switch(action.type.name) {
+
+    switch (action.type.name) {
         case 'Stock Split':
             return `STRONG BUY - Entry sekarang, target 15-35% sebelum pengumuman`;
         case 'Cash Dividend':
-            return days <= 7 ? 
+            return days <= 7 ?
                 `BUY - Cum date approaching, target 5-12%` :
                 `ACCUMULATE - Mulai accumulation, exit sebelum ex-date`;
         case 'Merger/Akuisisi':
@@ -1115,14 +1454,14 @@ function generateCorporateActionAdvice(actions, news) {
 
 // 🚨 NEW FUNCTION: Early Alert System
 function setupEarlyAlertSystem(stocks) {
-    const highAccumulationStocks = stocks.filter(stock => 
-        stock.accumulationScore > 25 && 
+    const highAccumulationStocks = stocks.filter(stock =>
+        stock.accumulationScore > 25 &&
         (stock.expectedCatalyst || stock.corporateActions.length > 0)
     );
-    
+
     if (highAccumulationStocks.length > 0) {
         addProgress(`🚨 SMART ALERT: ${highAccumulationStocks.length} stocks dengan multi-layer confirmation!`);
-        
+
         highAccumulationStocks.forEach(stock => {
             console.log(`🚨 SMART ALERT: ${stock.symbol}`);
             console.log(`   Accumulation Score: ${stock.accumulationScore}`);
@@ -1138,7 +1477,13 @@ function setupEarlyAlertSystem(stocks) {
 function formatTradingAnalysis(text) {
     text = text.replace(/<span[^>]*>/g, '').replace(/<\/span>/g, '');
 
+    // First try to parse as markdown table
     let html = parseMarkdownTable(text);
+
+    // If no table was found, try to build one from the text
+    if (!html.includes('<table')) {
+        html = buildTableFromAIResponse(text);
+    }
 
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
@@ -1176,6 +1521,93 @@ function formatTradingAnalysis(text) {
     html = html.replace(/\bSTOCK SPLIT\b/gi,
         '<span class="stocksplit-signal">📊 STOCK SPLIT</span>');
 
+    return html;
+}
+
+// 🔥 NEW FUNCTION: Build Table from AI Response if not in markdown format
+function buildTableFromAIResponse(text) {
+    // Extract all numbered recommendations
+    const lines = text.split('\n');
+    const recommendations = [];
+    let currentRec = null;
+
+    for (let line of lines) {
+        // Match lines that start with numbers like "1.", "2.", etc.
+        const match = line.match(/^(\d+)\.\s+(.*)/);
+        if (match) {
+            if (currentRec) {
+                recommendations.push(currentRec);
+            }
+            currentRec = {
+                number: match[1],
+                symbol: '',
+                action: '',
+                entry: '',
+                stopLoss: '',
+                target1: '',
+                target2: '',
+                target3: '',
+                catalyst: '',
+                confidence: '',
+                details: ''
+            };
+        } else if (currentRec && line.trim()) {
+            // Parse each line for key information
+            if (line.includes('Symbol:') || line.includes('🔹')) {
+                const symbolMatch = line.match(/[A-Z0-9]+\.[A-Z]{2}/);
+                if (symbolMatch) currentRec.symbol = symbolMatch[0];
+            }
+            if (line.includes('BUY') || line.includes('SELL') || line.includes('HOLD') || line.includes('STRONG BUY')) {
+                currentRec.action = line.trim();
+            }
+            if (line.includes('Entry') || line.includes('Entry Price') || line.includes('🎯 Entry')) {
+                currentRec.entry = line.trim();
+            }
+            if (line.includes('Stop Loss') || line.includes('🛑')) {
+                currentRec.stopLoss = line.trim();
+            }
+            if (line.includes('Target') || line.includes('🚀')) {
+                const targetNum = (currentRec.details.match(/target/gi) || []).length + 1;
+                if (targetNum === 1) currentRec.target1 = line.trim();
+                else if (targetNum === 2) currentRec.target2 = line.trim();
+                else if (targetNum === 3) currentRec.target3 = line.trim();
+            }
+            if (line.includes('Catalyst') || line.includes('Confidence')) {
+                currentRec.catalyst = line.trim();
+            }
+            if (!currentRec.details) {
+                currentRec.details += line.trim() + '\n';
+            }
+        }
+    }
+    if (currentRec) {
+        recommendations.push(currentRec);
+    }
+
+    // Build HTML table from recommendations
+    if (recommendations.length === 0) {
+        return text.replace(/\n/g, '<br>');
+    }
+
+    let html = '<table class="trading-table"><thead><tr>';
+    html += '<th>No</th><th>Symbol</th><th>Action</th><th>Entry</th><th>Stop Loss</th><th>Target 1</th><th>Target 2</th><th>Target 3</th><th>Catalyst</th>';
+    html += '</tr></thead><tbody>';
+
+    recommendations.forEach((rec, idx) => {
+        html += '<tr>';
+        html += `<td>${rec.number || idx + 1}</td>`;
+        html += `<td>${rec.symbol}</td>`;
+        html += `<td>${rec.action}</td>`;
+        html += `<td>${rec.entry}</td>`;
+        html += `<td>${rec.stopLoss}</td>`;
+        html += `<td>${rec.target1}</td>`;
+        html += `<td>${rec.target2}</td>`;
+        html += `<td>${rec.target3}</td>`;
+        html += `<td>${rec.catalyst}</td>`;
+        html += '</tr>';
+    });
+
+    html += '</tbody></table>';
     return html;
 }
 
