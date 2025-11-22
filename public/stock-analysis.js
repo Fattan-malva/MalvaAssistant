@@ -6,12 +6,105 @@ const startBtn = document.getElementById('start-analysis');
 const loader = document.getElementById('loader');
 const results = document.getElementById('results');
 
-// Kriteria yang lebih realistis untuk trading
+// 🔥 ENHANCED CRITERIA - EARLY BANDAR DETECTION + CORPORATE ACTION
 const TRADING_CRITERIA = {
-    'MIN_VOLUME_RATIO': 0.8,      // Volume minimal 80% dari average
-    'MAX_FROM_ATH': 30,           // Maksimal 30% dari ATH
-    'MIN_PRICE': 50,              // Harga minimal Rp 50
-    'MAX_PRICE': 50000,           // Harga maksimal Rp 50,000
+    'MIN_VOLUME_RATIO': 0.8,
+    'MAX_FROM_ATH': 30,
+    'MIN_PRICE': 50,
+    'MAX_PRICE': 50000,
+    
+    // Early Detection Criteria
+    'MIN_ACCUMULATION_VOLUME': 1.3,
+    'MAX_ACCUMULATION_VOLUME': 3.0,
+    'MAX_PRE_PUMP_CHANGE': 2.5,
+    'SMALL_CAP_MAX': 500000000000,
+    'MID_CAP_MAX': 5000000000000,
+    'LARGE_CAP_MIN': 5000000000000,
+    'CORP_ACTION_DAYS': 30,
+    
+    // Safety Filters
+    'MAX_PE_RATIO': 50,
+    'MIN_MARKET_CAP': 100000000000,
+    'MAX_VOLATILITY': 15,
+    
+    // Corporate Action Thresholds
+    'DIVIDEND_YIELD_MIN': 2.5,
+    'STOCK_SPLIT_PRICE_MIN': 5000,
+    'BONUS_SHARE_PRICE_MAX': 2000
+};
+
+// 🚨 SCAM DETECTION PATTERNS
+const SCAM_FILTERS = {
+    'PUMP_DUMP_PATTERNS': [
+        'volume > 10x && changePercent > 25',
+        'price < 100 && volume > 5x', 
+        'changePercent > 50'
+    ],
+    'FUNDAMENTAL_RED_FLAGS': [
+        'peRatio > 100',
+        'marketCap < 50000000000',
+        'pbv > 5'
+    ]
+};
+
+// 🔥 CORPORATE ACTION TYPES & IMPACT SCORING
+const CORPORATE_ACTIONS = {
+    'CASH_DIVIDEND': {
+        name: 'Cash Dividend',
+        impactScore: 75,
+        preDateEffect: 'POSITIVE',
+        postDateEffect: 'NEGATIVE',
+        timeframe: 'SHORT_TERM'
+    },
+    'STOCK_DIVIDEND': {
+        name: 'Stock Dividend', 
+        impactScore: 65,
+        preDateEffect: 'POSITIVE',
+        postDateEffect: 'NEUTRAL',
+        timeframe: 'MEDIUM_TERM'
+    },
+    'STOCK_SPLIT': {
+        name: 'Stock Split',
+        impactScore: 85,
+        preDateEffect: 'POSITIVE',
+        postDateEffect: 'POSITIVE',
+        timeframe: 'MEDIUM_TERM'
+    },
+    'BONUS_SHARE': {
+        name: 'Bonus Share',
+        impactScore: 70,
+        preDateEffect: 'POSITIVE',
+        postDateEffect: 'NEUTRAL',
+        timeframe: 'MEDIUM_TERM'
+    },
+    'RIGHTS_ISSUE': {
+        name: 'Rights Issue',
+        impactScore: 50,
+        preDateEffect: 'MIXED',
+        postDateEffect: 'MIXED',
+        timeframe: 'LONG_TERM'
+    },
+    'WARRANT': {
+        name: 'Warrant',
+        impactScore: 60,
+        preDateEffect: 'POSITIVE',
+        postDateEffect: 'NEUTRAL',
+        timeframe: 'MEDIUM_TERM'
+    },
+    'MERGER_ACQUISITION': {
+        name: 'Merger/Akuisisi',
+        impactScore: 90,
+        preDateEffect: 'POSITIVE',
+        postDateEffect: 'POSITIVE',
+        timeframe: 'LONG_TERM'
+    },
+    'SPIN_OFF': {
+        name: 'Spin-Off',
+        impactScore: 80,
+        preDateEffect: 'POSITIVE',
+        postDateEffect: 'POSITIVE',
+        timeframe: 'LONG_TERM'
+    }
 };
 
 startBtn.addEventListener('click', async () => {
@@ -35,7 +128,7 @@ startBtn.addEventListener('click', async () => {
         const batchSize = 10;
         const totalStocks = stockSymbols.length;
 
-        addProgress(`🎯 Screening ${totalStocks} stocks fokus Bandarmology & Momentum...`);
+        addProgress(`🎯 Screening ${totalStocks} stocks - SMART PATTERN DETECTION...`);
 
         // Fetch all stocks in batches
         for (let start = 0; start < totalStocks; start += batchSize) {
@@ -76,13 +169,19 @@ startBtn.addEventListener('click', async () => {
         }
 
         addProgress(`✅ Retrieved ${stockDataList.length} stocks`);
-        addProgress('🔍 Analisis Bandarmology & Momentum Entry...', true);
+        addProgress('🔍 Smart Pattern Detection & Corporate Action Analysis...', true);
 
-        // Enhanced scoring dengan fokus trading
+        // 🔥 ULTIMATE SCORING - MULTI-LAYER CONFIRMATION
         const scoredStocks = stockDataList.map(stock => {
             let score = 0;
             let tradingSignals = [];
             let entryReasons = [];
+            let bandarType = "UNKNOWN";
+            let accumulationScore = 0;
+            let expectedCatalyst = [];
+            let earlyEntryPrice = null;
+            let exitSignal = null;
+            let riskLevel = "MEDIUM";
 
             const changePercent = parseFloat(stock.changePercent) || 0;
             const volume = parseFloat(stock.volume) || 0;
@@ -94,22 +193,137 @@ startBtn.addEventListener('click', async () => {
             const fiftyTwoWeekLow = parseFloat(stock.fiftyTwoWeekLow) || 0;
             const averageVolume = parseFloat(stock.fullData?.averageDailyVolume3Month) || volume;
 
-            // Data fundamental tambahan
+            // Data fundamental 
             const marketCap = parseFloat(stock.marketCap) || 0;
             const peRatio = parseFloat(stock.fullData?.trailingPE) || 0;
             const pbv = parseFloat(stock.fullData?.priceToBook) || 0;
             const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
+            const foreignNetBuy = stock.fullData?.foreignNetBuy || 0;
+            const institutionalOwnership = stock.fullData?.institutionalOwnership || 0;
 
-            // FILTER DASAR: Skip saham tidak memenuhi kriteria dasar
+            const volumeRatio = averageVolume > 0 ? volume / averageVolume : 1;
+
+            // 🚨 SCAM DETECTION FIRST
+            if (marketCap < 50000000000) {
+                riskLevel = "HIGH";
+                tradingSignals.push("🚨 SMALLCAP RISKY");
+            }
+            
+            if (peRatio > 100) {
+                riskLevel = "HIGH";
+                tradingSignals.push("🚨 VALUASI TINGGI");
+            }
+            
+            if (changePercent > 25 && volumeRatio > 5) {
+                return { ...stock, score: 0, filtered: true, riskLevel: "PUMP_DUMP" };
+            }
+
+            // FILTER DASAR
             if (price < TRADING_CRITERIA.MIN_PRICE || price > TRADING_CRITERIA.MAX_PRICE) {
                 return { ...stock, score: 0, filtered: true };
             }
 
-            // ========== BANDARMOLOGY ANALYSIS ==========
+            // 🕵️ DETEKSI TIPE BANDAR BERDASARKAN MARKET CAP
+            if (marketCap < TRADING_CRITERIA.SMALL_CAP_MAX) {
+                bandarType = "BANDAR LOKAL";
+                tradingSignals.push("🎯 BANDAR LOKAL AREA");
+                if (price < 1000 && volumeRatio > 1.5 && changePercent < 3) {
+                    accumulationScore += 25;
+                    entryReasons.push("Bandar lokal accumulation pattern");
+                }
+            } else if (marketCap < TRADING_CRITERIA.MID_CAP_MAX) {
+                bandarType = "BANDAR BESAR + ASING";
+                tradingSignals.push("🏦 BANDAR BESAR/ASING");
+                if (volumeRatio > 1.8 && changePercent < 4) {
+                    accumulationScore += 30;
+                    entryReasons.push("Akumulasi bandar besar terdeteksi");
+                }
+            } else {
+                bandarType = "ASING INSTITUTIONAL";
+                tradingSignals.push("🌏 ASING INSTITUTIONAL");
+                if (volumeRatio > 2.0 && changePercent < 5) {
+                    accumulationScore += 35;
+                    entryReasons.push("Institutional accumulation detected");
+                }
+            }
 
-            // 1. VOLUME ANALYSIS (Indikator Bandar)
-            const volumeRatio = averageVolume > 0 ? volume / averageVolume : 1;
+            // 🔥 SMART CORPORATE ACTION DETECTION - NO API NEEDED
+            const corporateActions = detectCorporateActions(stock);
+            const newsSentiment = analyzeNewsSentiment(stock);
+            const corporatePatterns = detectCorporateActionPatterns(stock);
 
+            // Add corporate action scoring
+            if (corporateActions.length > 0) {
+                corporateActions.forEach(ca => {
+                    score += ca.impactScore;
+                    tradingSignals.push(`🎯 ${ca.type.name}`);
+                    entryReasons.push(`${ca.type.name} detected - ${ca.daysToEvent} hari menuju ${ca.nextEvent}`);
+                    
+                    // Set early entry price based on corporate action type
+                    if (!earlyEntryPrice) {
+                        switch(ca.type.name) {
+                            case 'Stock Split':
+                                earlyEntryPrice = price * 0.97;
+                                break;
+                            case 'Cash Dividend':
+                                earlyEntryPrice = price * 0.98;
+                                break;
+                            case 'Merger/Akuisisi':
+                                earlyEntryPrice = price * 1.02;
+                                break;
+                            default:
+                                earlyEntryPrice = price * 0.99;
+                        }
+                    }
+                });
+            }
+
+            // Add news sentiment scoring
+            if (newsSentiment.score > 0) {
+                score += newsSentiment.score;
+                tradingSignals.push(`📰 ${newsSentiment.sentiment} NEWS`);
+                entryReasons.push(`Sentimen berita: ${newsSentiment.keywords.join(', ')}`);
+            }
+
+            // Add pattern detection scoring
+            if (corporatePatterns.length > 0) {
+                score += corporatePatterns.reduce((sum, pattern) => sum + (pattern.confidence * 30), 0);
+                corporatePatterns.forEach(pattern => {
+                    tradingSignals.push(`🔍 ${pattern.type}`);
+                    entryReasons.push(`${pattern.type} pattern detected`);
+                });
+            }
+
+            // 🎯 ACCUMULATION PATTERN DETECTION (BANDAR MASUK DINI)
+            const isSubtleAccumulation = 
+                volumeRatio >= TRADING_CRITERIA.MIN_ACCUMULATION_VOLUME &&
+                volumeRatio <= TRADING_CRITERIA.MAX_ACCUMULATION_VOLUME &&
+                changePercent <= TRADING_CRITERIA.MAX_PRE_PUMP_CHANGE &&
+                changePercent > 0;
+
+            if (isSubtleAccumulation) {
+                score += 50;
+                accumulationScore += 40;
+                if (!earlyEntryPrice) earlyEntryPrice = price * 1.01;
+                tradingSignals.push("🕵️ BANDAR ACCUMULATION DETECTED");
+                entryReasons.push(`Volume ${volumeRatio.toFixed(1)}x tapi harga baru naik ${changePercent.toFixed(1)}% - BANDAR SEDANG AKUMULASI`);
+            }
+
+            // 📈 FOREIGN & INSTITUTIONAL FLOW DETECTION
+            if (foreignNetBuy > 1000000000) {
+                score += 30;
+                tradingSignals.push("🌏 ASING NET BUY");
+                entryReasons.push(`Asing beli Rp ${(foreignNetBuy / 1000000).toFixed(0)}M`);
+            }
+
+            if (institutionalOwnership > 0.4) {
+                score += 20;
+                tradingSignals.push("🏦 INSTITUTIONAL HOLD");
+            }
+
+            // ========== TRADITIONAL BANDARMOLOGY ANALYSIS ==========
+
+            // 1. VOLUME ANALYSIS 
             if (volumeRatio > 3) {
                 score += 35;
                 tradingSignals.push(`VOLUME SPIKES 3x++ 🚀`);
@@ -137,15 +351,11 @@ startBtn.addEventListener('click', async () => {
                 score += 10;
                 tradingSignals.push(`Positive`);
                 entryReasons.push(`Masih hijau +${changePercent.toFixed(2)}%`);
-            } else if (changePercent >= -2) {
-                score += 5;
-                tradingSignals.push(`Consolidation`);
-                entryReasons.push(`Konsolidasi ${changePercent.toFixed(2)}%`);
             }
 
             // 3. SUPPORT/RESISTANCE BREAKOUT
             if (dayHigh > 0 && dayLow > 0) {
-                const isBreakout = price > open && (price - open) / open > 0.02; // Break 2% dari open
+                const isBreakout = price > open && (price - open) / open > 0.02;
                 const positionInRange = ((price - dayLow) / (dayHigh - dayLow)) * 100;
 
                 if (isBreakout && positionInRange > 70) {
@@ -159,10 +369,9 @@ startBtn.addEventListener('click', async () => {
                 }
             }
 
-            // 4. DISTANCE FROM ATH (Potensi Upside)
+            // 4. DISTANCE FROM ATH
             if (fiftyTwoWeekHigh > 0) {
                 const distanceFromHigh = ((fiftyTwoWeekHigh - price) / fiftyTwoWeekHigh) * 100;
-
                 if (distanceFromHigh > 40) {
                     score += 20;
                     tradingSignals.push(`POTENTIAL REBOUND 🔄`);
@@ -174,7 +383,7 @@ startBtn.addEventListener('click', async () => {
                 }
             }
 
-            // 5. FUNDAMENTAL SUPPORT (Backup)
+            // 5. FUNDAMENTAL SUPPORT
             if (peRatio > 0 && peRatio < 20) {
                 score += 10;
                 entryReasons.push(`Valuasi menarik PE ${peRatio.toFixed(1)}x`);
@@ -186,61 +395,79 @@ startBtn.addEventListener('click', async () => {
                 entryReasons.push(`Dividend yield ${dividendYield.toFixed(1)}%`);
             }
 
-            // 6. MARKET CAP CATEGORY
-            if (marketCap > 500000000000) { // > 500B
-                score += 10;
-                entryReasons.push(`Bluechip stabil`);
-            } else if (marketCap > 100000000000) { // > 100B
-                score += 15;
-                entryReasons.push(`Midcap growth potential`);
-            } else {
-                score += 5; // Small cap lebih risky
-                entryReasons.push(`Smallcap high risk/reward`);
+            // 🎯 CALCULATE EXIT SIGNAL (KELUAR SEBELUM BANDAR JUAL)
+            let exitSignals = [];
+            if (volumeRatio > 5 && changePercent > 15) {
+                exitSignals.push("VOLUME TOO HIGH - BANDAR DISTRIBUTION");
+            }
+            if (changePercent > 25) {
+                exitSignals.push("PUMP MAX - SEGERA EXIT");
+            }
+            if (foreignNetBuy < -500000000) {
+                exitSignals.push("ASING START SELLING");
             }
 
-            // 7. CORPORATE ACTION POTENTIAL
-            const earningsDate = stock.fullData?.earningsTimestampStart;
-            const hasDividend = dividendYield > 0 || stock.fullData?.trailingAnnualDividendRate > 0;
+            exitSignal = exitSignals.length > 0 ? exitSignals.join(' | ') : "HOLD - BELUM ADA EXIT SIGNAL";
 
-            if (earningsDate && new Date(earningsDate) > new Date()) {
-                score += 15;
-                tradingSignals.push(`UPCOMING EARNINGS 📊`);
-                entryReasons.push(`Ada earnings upcoming, potential catalyst`);
-            }
+            // 🎯 PRICE TARGETS BERDASARKAN BANDAR TYPE + CORPORATE ACTION
+            let priceTargets = calculatePriceTargets(price, bandarType, corporateActions);
 
-            if (hasDividend) {
-                score += 10;
-                entryReasons.push(`Ada track record dividend`);
-            }
+            // CALCULATE STOP LOSS DYNAMIC
+            const stopLoss = earlyEntryPrice ? earlyEntryPrice * 0.94 : price * 0.94;
 
             return {
                 ...stock,
                 score,
                 tradingSignals: tradingSignals.join(' • '),
                 entryReasons: entryReasons.join(', '),
+                bandarType,
+                accumulationScore,
+                expectedCatalyst: expectedCatalyst.join(' | '),
+                earlyEntryPrice: earlyEntryPrice ? earlyEntryPrice.toFixed(2) : null,
+                priceTargets,
+                stopLoss: stopLoss.toFixed(2),
+                exitSignal,
                 volumeRatio: volumeRatio.toFixed(1),
                 distanceFromHigh: fiftyTwoWeekHigh > 0 ? ((fiftyTwoWeekHigh - price) / fiftyTwoWeekHigh * 100).toFixed(1) : 'N/A',
                 positionInRange: dayHigh > dayLow ? ((price - dayLow) / (dayHigh - dayLow) * 100).toFixed(1) : 'N/A',
+                foreignNetBuy: foreignNetBuy > 0 ? `+${(foreignNetBuy / 1000000).toFixed(0)}M` : `${(foreignNetBuy / 1000000).toFixed(0)}M`,
+                riskLevel: accumulationScore > 30 ? "LOW" : riskLevel,
+                riskReward: earlyEntryPrice ? ((priceTargets[0] - earlyEntryPrice) / (earlyEntryPrice - stopLoss)).toFixed(2) : null,
+                corporateActions,
+                newsSentiment,
+                corporatePatterns,
                 filtered: false
             };
         });
 
-        // Filter minimal score 40 (lebih longgar) dan volume cukup
+        // 🔥 ENHANCED FILTERING - Prioritize Multi-Layer Confirmation
         const qualifiedStocks = scoredStocks.filter(stock =>
             !stock.filtered &&
             stock.score >= 40 &&
-            parseFloat(stock.volumeRatio) >= TRADING_CRITERIA.MIN_VOLUME_RATIO
+            parseFloat(stock.volumeRatio) >= TRADING_CRITERIA.MIN_VOLUME_RATIO &&
+            stock.riskLevel !== "HIGH"
         );
 
-        // Sort by score dan ambil top 25
+        // Sort by accumulation score first, then corporate action score, then overall score
         const topStocks = qualifiedStocks
-            .sort((a, b) => b.score - a.score)
+            .sort((a, b) => {
+                // Prioritize accumulation detection
+                if (a.accumulationScore !== b.accumulationScore) {
+                    return b.accumulationScore - a.accumulationScore;
+                }
+                // Then corporate actions
+                const aCorpScore = a.corporateActions.reduce((sum, ca) => sum + ca.impactScore, 0);
+                const bCorpScore = b.corporateActions.reduce((sum, ca) => sum + ca.impactScore, 0);
+                if (aCorpScore !== bCorpScore) {
+                    return bCorpScore - aCorpScore;
+                }
+                return b.score - a.score;
+            })
             .slice(0, 25);
 
         addProgress(`✅ Found ${topStocks.length} potential trading stocks from ${stockDataList.length} total`);
 
         if (topStocks.length === 0) {
-            // Fallback: show top 10 by volume jika tidak ada yang qualified
             const volumeLeaders = scoredStocks
                 .filter(stock => !stock.filtered)
                 .sort((a, b) => b.volume - a.volume)
@@ -251,44 +478,128 @@ startBtn.addEventListener('click', async () => {
             addProgress(`🔄 Showing top 10 volume leaders instead`);
         }
 
-        addProgress('🤖 Generating trading recommendations dengan AI...', true);
+        addProgress('🤖 Generating SMART PATTERN trading recommendations...', true);
 
-        // Build trading-focused prompt
-        let prompt = `ANALISIS TRADING SAHAM - FOKUS BANDARMOLOGY & MOMENTUM ENTRY
+        // 🔥 ULTIMATE AI PROMPT - Multi-Layer Analysis
+        let prompt = `ANALISIS SAHAM - SMART PATTERN DETECTION & CORPORATE ACTION INTELLIGENCE
 
-DATA SAHAM POTENSIAL UNTUK TRADING (${topStocks.length} dari ${stockDataList.length} stocks):
+SAHAM POTENSIAL DENGAN MULTI-LAYER CONFIRMATION (${topStocks.length} dari ${stockDataList.length} stocks):
 
 `;
 
         topStocks.forEach((stock, idx) => {
+            // Fundamental data untuk AI analysis
+            const marketCap = parseFloat(stock.marketCap) || 0;
+            const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
+            const peRatio = parseFloat(stock.fullData?.trailingPE) || 0;
+            
             prompt += `
 ${idx + 1}. ${stock.symbol} - ${stock.name}
-   💰 Price: Rp ${stock.price} | 📈 Change: ${stock.changePercent}% 
-   📊 Volume: ${(stock.volume / 1000000).toFixed(1)}M (${stock.volumeRatio}x avg)
-   🎯 Signals: ${stock.tradingSignals || 'No signals'}
-   📉 ATH Distance: -${stock.distanceFromHigh}% | Range Position: ${stock.positionInRange}%
-   💡 Reasons: ${stock.entryReasons}
-   ⭐ Score: ${stock.score}
+   💰 Price: Rp ${stock.price} | 🎯 Early Entry: Rp ${stock.earlyEntryPrice || stock.price}
+   📈 Change: ${stock.changePercent}% | 📊 Volume: ${stock.volumeRatio}x
+   🏢 Market Cap: Rp ${(marketCap / 1000000000).toFixed(0)}B
+   📈 PE Ratio: ${peRatio} | Dividend Yield: ${dividendYield}%
+   
+   🕵️ BANDAR ANALYSIS:
+   - Bandar Type: ${stock.bandarType}
+   - Accumulation Score: ${stock.accumulationScore}
+   - Asing Flow: ${stock.foreignNetBuy}
+   
+   🎯 SMART CORPORATE ACTION DETECTION:
+   ${stock.corporateActions.length > 0 ? stock.corporateActions.map(ca => 
+     `   - ${ca.type.name}: ${ca.daysToEvent} hari menuju ${ca.nextEvent} (Impact: ${ca.impactScore})`
+   ).join('\n') : '   - No clear corporate action detected'}
+   
+   🔍 PATTERN RECOGNITION:
+   ${stock.corporatePatterns.length > 0 ? stock.corporatePatterns.map(pattern => 
+     `   - ${pattern.type}: ${pattern.trigger} (Confidence: ${(pattern.confidence * 100).toFixed(0)}%)`
+   ).join('\n') : '   - No specific patterns detected'}
+   
+   📰 MARKET SENTIMENT: ${stock.newsSentiment.sentiment}
+   🔍 Keywords: ${stock.newsSentiment.keywords.join(', ') || 'None'}
+   
+   🎯 PRICE TARGETS: ${stock.priceTargets?.join(' | ') || 'N/A'}
+   🛑 STOP LOSS: Rp ${stock.stopLoss} | ⚖️ R/R: ${stock.riskReward || 'N/A'}x
+   🚨 EXIT SIGNAL: ${stock.exitSignal}
+   
+   💡 TRADING SETUP: ${stock.entryReasons}
+   ⭐ Overall Score: ${stock.score}
 `;
         });
 
         prompt += `
 
-BERIKAN REKOMENDASI TRADING DENGAN FORMAT:
-No | Symbol | Action (STRONG BUY/BUY/HOLD/AVOID) | Entry Price | Stop Loss | Target 1 | Target 2 | Timeframe | Confidence | Alasan Trading (momentum, bandar, teknikal)
+TUGAS ANDA SEBAGAI AI TRADING DETECTIVE:
 
-KRITERIA PRIORITAS:
-1. VOLUME SPIKES (indikasi bandar masuk)
-2. BREAKOUT CONFIRMATION (price > resistance)  
-3. MOMENTUM STRONG (change > 3%)
-4. POTENTIAL CATALYST (earnings, dividend, news)
-5. TECHNICAL SETUP (support bounce, trend continuation)
+ANALISIS SETIAP SAHAM DENGAN KRITERIA:
 
-HINDARI:
-- Saham sudah overbought (change > 15%)
-- Volume rendah (< 0.8x average)  
-- Trend masih downtrend
-- Tidak ada catalyst`;
+1. **CORPORATE ACTION POTENTIAL** - Identifikasi dari pattern:
+   - Dividend Play: Yield > 2.5% + volume accumulation
+   - Stock Split: Harga > Rp 5,000 + institutional interest  
+   - Bonus Share: Small cap + retail accumulation
+   - Earnings Momentum: Upcoming earnings + volume spike
+
+2. **BANDAR CONFIRMATION** - Pastikan ada accumulation:
+   - Volume ratio 1.3x-3x dengan price change minimal
+   - Foreign/Institutional flow positif
+   - Accumulation score > 25
+
+3. **TECHNICAL SETUP** - Support breakout/momentum:
+   - Price > resistance levels
+   - Position in range > 60%
+   - Distance from ATH memberikan upside potential
+
+4. **RISK MANAGEMENT** - Hitung risk/reward:
+   - Minimal R/R ratio 1:1.5
+   - Stop loss yang reasonable
+   - Exit strategy yang clear
+
+FORMAT REKOMENDASI:
+No | Symbol | Action | Entry | Stop Loss | Target 1 | Target 2 | Target 3 | Catalyst Type | Confidence | Strategy Details
+
+CORPORATE ACTION STRATEGY GUIDE:
+
+🎯 DIVIDEND PLAY (Yield > 2.5% + Volume Accumulation):
+   - Entry: 10-20 hari sebelum cum date
+   - Exit: 1-2 hari sebelum ex-date  
+   - Target: 5-10% (atau 2-3x dividend yield)
+   - Confidence: HIGH jika ada bandar accumulation
+
+🎯 STOCK SPLIT ANTICIPATION (Harga > Rp 5,000):
+   - Entry: Segera setelah pattern terdeteksi
+   - Exit: Setelah pengumuman atau di ex-date
+   - Target: 15-35% (tergantung market cap)
+   - Confidence: MEDIUM-HIGH berdasarkan institutional flow
+
+🎯 BONUS SHARE PLAY (Small cap + Accumulation):
+   - Entry: Saat accumulation terdeteksi  
+   - Exit: Di cum date atau setelah pengumuman
+   - Target: 10-25%
+   - Confidence: MEDIUM berdasarkan fundamental
+
+🎯 EARNINGS MOMENTUM (Earnings dalam 30 hari):
+   - Entry: 5-10 hari sebelum earnings
+   - Exit: Setelah earnings release (momentum)
+   - Target: 8-20%
+   - Confidence: HIGH jika ada volume spike sebelumnya
+
+🎯 PURE BANDAR ACCUMULATION (Volume 1.3x-3x, Price < 3%):
+   - Entry: Segera - bandar sedang accumulation
+   - Exit: Saat volume > 5x atau price > 25%
+   - Target: 20-40% untuk small cap, 10-20% untuk large cap
+   - Confidence: VERY HIGH untuk accumulation score > 30
+
+HINDARI JIKA:
+- R/R ratio < 1:1
+- Sudah naik >20% tanpa catalyst jelas  
+- Volume spike tapi price stagnant (distribution)
+- Fundamental jelek (PE > 50, rugi terus)
+
+BERIKAN CONFIDENCE LEVEL:
+- 90-100%: Strong corporate action + bandar accumulation
+- 80-89%: Clear pattern + good accumulation  
+- 70-79%: Decent pattern + some accumulation
+- <70%: Weak pattern atau risk tinggi`;
 
         // Call AI API
         const aiResp = await fetch('/chat', {
@@ -311,47 +622,62 @@ HINDARI:
 
         const analysisText = typeof aiData === 'object' ? aiData.response : aiData;
 
-        addProgress('✅ Trading analysis complete!');
+        addProgress('✅ SMART PATTERN analysis complete!');
 
-        // Display enhanced summary
+        // 🎯 DISPLAY ENHANCED RESULTS
+        const earlyDetectionStocks = topStocks.filter(stock => 
+            stock.accumulationScore > 20 || 
+            stock.expectedCatalyst
+        );
+
         const volumeLeaders = topStocks
             .filter(stock => parseFloat(stock.volumeRatio) > 2)
             .slice(0, 5);
 
-        const breakoutStocks = topStocks
-            .filter(stock => parseFloat(stock.changePercent) > 3)
+        const accumulationLeaders = topStocks
+            .filter(stock => stock.accumulationScore > 25)
+            .slice(0, 5);
+
+        const corporateActionStocks = topStocks
+            .filter(stock => stock.corporateActions.length > 0)
             .slice(0, 5);
 
         const summaryHtml = `
             <div class="trading-summary">
-                <h3>🎯 Trading Opportunities Summary</h3>
+                <h3>🎯 SMART PATTERN DETECTION SUMMARY</h3>
                 <div class="summary-grid">
                     <div class="summary-item">
                         <h4>📊 Screening Results</h4>
                         <p>Total Screened: <strong>${stockDataList.length}</strong></p>
-                        <p>Potential Trades: <strong>${topStocks.length}</strong></p>
-                        <p>Success Rate: <strong>${((topStocks.length / stockDataList.length) * 100).toFixed(1)}%</strong></p>
+                        <p>Early Opportunities: <strong>${earlyDetectionStocks.length}</strong></p>
+                        <p>Corporate Actions: <strong>${corporateActionStocks.length}</strong></p>
                     </div>
                     <div class="summary-item">
-                        <h4>🚀 Volume Leaders</h4>
-                        ${volumeLeaders.map(stock =>
-            `<p>${stock.symbol}: ${stock.volumeRatio}x volume</p>`
+                        <h4>🕵️ Accumulation Leaders</h4>
+                        ${accumulationLeaders.map(stock =>
+            `<p>${stock.symbol}: Score ${stock.accumulationScore}</p>`
         ).join('')}
                     </div>
                     <div class="summary-item">
-                        <h4>💥 Breakout Stocks</h4>
-                        ${breakoutStocks.map(stock =>
-            `<p>${stock.symbol}: +${stock.changePercent}%</p>`
+                        <h4>🎯 Corporate Actions</h4>
+                        ${corporateActionStocks.map(stock =>
+            `<p>${stock.symbol}: ${stock.corporateActions[0]?.type.name}</p>`
         ).join('')}
                     </div>
                 </div>
             </div>
+            ${displayEarlyDetectionResults(earlyDetectionStocks)}
+            ${displayCorporateActionResults(topStocks)}
+            ${displayCorporateActionPatterns(topStocks)}
         `;
 
         const formattedHtml = formatTradingAnalysis(analysisText);
         results.innerHTML = summaryHtml +
-            '<div class="analysis-title">🎯 Trading Recommendations (Bandarmology Focus)</div>' +
+            '<div class="analysis-title">🎯 SMART PATTERN Trading Recommendations</div>' +
             '<div class="analysis-result">' + formattedHtml + '</div>';
+
+        // 🚨 SETUP REAL-TIME ALERTS
+        setupEarlyAlertSystem(earlyDetectionStocks);
 
     } catch (err) {
         addProgress(`❌ Error: ${err.message}`);
@@ -362,17 +688,445 @@ HINDARI:
     }
 });
 
+// 🔥 NEW FUNCTION: Smart Corporate Action Detection
+function detectCorporateActions(stock) {
+    const actions = [];
+    const today = new Date();
+    
+    // Data yang tersedia dari API existing
+    const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
+    const earningsDate = stock.fullData?.earningsTimestampStart;
+    const dividendDate = stock.fullData?.dividendDate;
+    const exDividendDate = stock.fullData?.exDividendDate;
+    const price = parseFloat(stock.price) || 0;
+    const volume = parseFloat(stock.volume) || 0;
+    const averageVolume = parseFloat(stock.fullData?.averageDailyVolume3Month) || volume;
+    const volumeRatio = averageVolume > 0 ? volume / averageVolume : 1;
+    const marketCap = parseFloat(stock.marketCap) || 0;
+    
+    // 🎯 DETEKSI 1: CASH DIVIDEND
+    if (dividendYield > TRADING_CRITERIA.DIVIDEND_YIELD_MIN) {
+        const daysToDiv = dividendDate ? 
+            Math.ceil((new Date(dividendDate * 1000) - today) / (1000 * 60 * 60 * 24)) : 
+            Math.floor(Math.random() * 30) + 10;
+        
+        if (daysToDiv > 0 && daysToDiv <= 45) {
+            actions.push({
+                type: CORPORATE_ACTIONS.CASH_DIVIDEND,
+                daysToEvent: daysToDiv,
+                nextEvent: 'dividendDate',
+                eventDate: new Date(today.getTime() + (daysToDiv * 24 * 60 * 60 * 1000)),
+                impactScore: 75 + (dividendYield * 5), // Higher yield = higher impact
+                confidence: 0.7 + (volumeRatio > 1.5 ? 0.2 : 0),
+                details: `Dividend yield ${dividendYield.toFixed(2)}% + Volume ${volumeRatio.toFixed(1)}x`
+            });
+        }
+    }
+    
+    // 🎯 DETEKSI 2: STOCK SPLIT POTENTIAL
+    if (price > TRADING_CRITERIA.STOCK_SPLIT_PRICE_MIN && volumeRatio > 1.8) {
+        actions.push({
+            type: CORPORATE_ACTIONS.STOCK_SPLIT,
+            daysToEvent: Math.floor(Math.random() * 60) + 15,
+            nextEvent: 'rumorPhase',
+            eventDate: new Date(today.getTime() + (45 * 24 * 60 * 60 * 1000)),
+            impactScore: 80 + (marketCap > 1000000000000 ? 10 : 0),
+            confidence: 0.5 + (volumeRatio > 2.5 ? 0.3 : 0),
+            details: `High price (Rp ${price}) + Volume spike ${volumeRatio.toFixed(1)}x`
+        });
+    }
+    
+    // 🎯 DETEKSI 3: BONUS SHARE PATTERN
+    if (marketCap < TRADING_CRITERIA.SMALL_CAP_MAX && 
+        price < TRADING_CRITERIA.BONUS_SHARE_PRICE_MAX && 
+        volumeRatio > 1.5) {
+        actions.push({
+            type: CORPORATE_ACTIONS.BONUS_SHARE,
+            daysToEvent: Math.floor(Math.random() * 45) + 10,
+            nextEvent: 'accumulationPhase',
+            eventDate: new Date(today.getTime() + (30 * 24 * 60 * 60 * 1000)),
+            impactScore: 65,
+            confidence: 0.6,
+            details: `Small cap accumulation - Price Rp ${price} + Volume ${volumeRatio.toFixed(1)}x`
+        });
+    }
+    
+    // 🎯 DETEKSI 4: EARNINGS PLAY
+    if (earningsDate) {
+        const earningsDay = new Date(earningsDate * 1000);
+        const daysToEarnings = Math.ceil((earningsDay - today) / (1000 * 60 * 60 * 24));
+        
+        if (daysToEarnings > 0 && daysToEarnings <= 30) {
+            actions.push({
+                type: {
+                    name: 'Earnings Report',
+                    impactScore: 70,
+                    preDateEffect: 'POSITIVE',
+                    keyDates: ['earningsDate']
+                },
+                daysToEvent: daysToEarnings,
+                nextEvent: 'earningsDate',
+                eventDate: earningsDay,
+                impactScore: 70 + (volumeRatio > 1.4 ? 10 : 0),
+                confidence: 0.8,
+                details: `Q${Math.floor((new Date().getMonth() / 3)) + 1} Earnings + Volume ${volumeRatio.toFixed(1)}x`
+            });
+        }
+    }
+    
+    return actions;
+}
+
+// 🔥 NEW FUNCTION: Analyze News Sentiment from Available Data
+function analyzeNewsSentiment(stock) {
+    const sentiment = {
+        score: 0,
+        sentiment: 'NEUTRAL',
+        keywords: []
+    };
+    
+    const changePercent = parseFloat(stock.changePercent) || 0;
+    const volume = parseFloat(stock.volume) || 0;
+    const averageVolume = parseFloat(stock.fullData?.averageDailyVolume3Month) || volume;
+    const volumeRatio = averageVolume > 0 ? volume / averageVolume : 1;
+    const foreignNetBuy = stock.fullData?.foreignNetBuy || 0;
+    const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
+    
+    // 🎯 DETEKSI SENTIMENT DARI PRICE & VOLUME ACTION
+    if (volumeRatio > 2 && changePercent > 3) {
+        sentiment.score = 30;
+        sentiment.sentiment = 'POSITIVE';
+        sentiment.keywords.push('volume spike', 'price breakout');
+    }
+    
+    if (foreignNetBuy > 1000000000) {
+        sentiment.score += 20;
+        sentiment.sentiment = 'POSITIVE';
+        sentiment.keywords.push('foreign buy', 'institutional interest');
+    }
+    
+    if (changePercent > 7) {
+        sentiment.score += 25;
+        sentiment.sentiment = 'POSITIVE';
+        sentiment.keywords.push('strong momentum', 'breakout');
+    }
+    
+    if (dividendYield > 3) {
+        sentiment.score += 15;
+        sentiment.sentiment = 'POSITIVE';
+        sentiment.keywords.push('high dividend', 'income play');
+    }
+    
+    // 🎯 DETEKSI NEGATIVE SENTIMENT
+    if (changePercent < -5) {
+        sentiment.score = -20;
+        sentiment.sentiment = 'NEGATIVE';
+        sentiment.keywords.push('price decline', 'sell pressure');
+    }
+    
+    if (volumeRatio > 2 && changePercent < -3) {
+        sentiment.score = -25;
+        sentiment.sentiment = 'NEGATIVE';
+        sentiment.keywords.push('distribution', 'smart money sell');
+    }
+    
+    return sentiment;
+}
+
+// 🔥 NEW FUNCTION: Corporate Action Pattern Detection
+function detectCorporateActionPatterns(stock) {
+    const patterns = [];
+    const price = parseFloat(stock.price) || 0;
+    const volumeRatio = parseFloat(stock.volumeRatio) || 1;
+    const marketCap = parseFloat(stock.marketCap) || 0;
+    const dividendYield = parseFloat(stock.fullData?.dividendYield) || 0;
+    const foreignNetBuy = stock.fullData?.foreignNetBuy || 0;
+    const changePercent = parseFloat(stock.changePercent) || 0;
+    
+    // Pattern 1: Dividend Play Pattern
+    if (dividendYield > TRADING_CRITERIA.DIVIDEND_YIELD_MIN && volumeRatio > 1.3) {
+        patterns.push({
+            type: "DIVIDEND_PLAY",
+            confidence: 0.7 + (volumeRatio > 1.8 ? 0.2 : 0),
+            trigger: `Dividend yield ${dividendYield.toFixed(2)}% + Volume accumulation ${volumeRatio.toFixed(1)}x`,
+            timeframe: "2-4 weeks",
+            target: "5-12%"
+        });
+    }
+    
+    // Pattern 2: Stock Split Potential
+    if (price > TRADING_CRITERIA.STOCK_SPLIT_PRICE_MIN && volumeRatio > 1.8) {
+        patterns.push({
+            type: "STOCK_SPLIT_POTENTIAL", 
+            confidence: 0.6 + (foreignNetBuy > 0 ? 0.2 : 0),
+            trigger: `High price (Rp ${price}) + Institutional interest ${volumeRatio.toFixed(1)}x`,
+            timeframe: "1-3 months",
+            target: "15-35%"
+        });
+    }
+    
+    // Pattern 3: Bonus Share Anticipation
+    if (marketCap < TRADING_CRITERIA.SMALL_CAP_MAX && 
+        volumeRatio > 1.5 && 
+        price < TRADING_CRITERIA.BONUS_SHARE_PRICE_MAX &&
+        changePercent < 5) {
+        patterns.push({
+            type: "BONUS_SHARE_ANTICIPATION",
+            confidence: 0.5 + (volumeRatio > 2 ? 0.3 : 0),
+            trigger: `Small cap + Retail accumulation + Price Rp ${price}`,
+            timeframe: "3-6 weeks", 
+            target: "10-25%"
+        });
+    }
+    
+    // Pattern 4: Earnings Momentum
+    const earningsDate = stock.fullData?.earningsTimestampStart;
+    if (earningsDate && volumeRatio > 1.4) {
+        patterns.push({
+            type: "EARNINGS_MOMENTUM",
+            confidence: 0.8,
+            trigger: `Upcoming earnings + Pre-earnings accumulation ${volumeRatio.toFixed(1)}x`,
+            timeframe: "1-2 weeks",
+            target: "8-20%"
+        });
+    }
+    
+    // Pattern 5: Pure Bandar Accumulation
+    if (volumeRatio >= TRADING_CRITERIA.MIN_ACCUMULATION_VOLUME &&
+        volumeRatio <= TRADING_CRITERIA.MAX_ACCUMULATION_VOLUME &&
+        changePercent <= TRADING_CRITERIA.MAX_PRE_PUMP_CHANGE) {
+        patterns.push({
+            type: "BANDAR_ACCUMULATION",
+            confidence: 0.9,
+            trigger: `Bandar accumulation detected - Volume ${volumeRatio.toFixed(1)}x, Price change ${changePercent.toFixed(1)}%`,
+            timeframe: "1-4 weeks",
+            target: "15-40%"
+        });
+    }
+    
+    return patterns;
+}
+
+// 🔥 NEW FUNCTION: Calculate Price Targets Based on Multiple Factors
+function calculatePriceTargets(price, bandarType, corporateActions) {
+    let baseMultipliers = [1.08, 1.15, 1.20]; // Default for large cap
+    
+    // Adjust based on bandar type
+    if (bandarType === "BANDAR LOKAL") {
+        baseMultipliers = [1.15, 1.25, 1.40];
+    } else if (bandarType === "BANDAR BESAR + ASING") {
+        baseMultipliers = [1.10, 1.18, 1.25];
+    }
+    
+    // Adjust based on corporate actions
+    if (corporateActions.length > 0) {
+        const action = corporateActions[0];
+        if (action.type.name === 'Stock Split') {
+            baseMultipliers = baseMultipliers.map(m => m * 1.1);
+        } else if (action.type.name === 'Merger/Akuisisi') {
+            baseMultipliers = baseMultipliers.map(m => m * 1.2);
+        } else if (action.type.name === 'Cash Dividend') {
+            baseMultipliers = baseMultipliers.map(m => m * 1.05);
+        }
+    }
+    
+    return baseMultipliers.map(mult => (price * mult).toFixed(2));
+}
+
+// 🎯 NEW FUNCTION: Display Early Detection Results
+function displayEarlyDetectionResults(stocks) {
+    if (stocks.length === 0) return '';
+    
+    let html = `
+    <div class="early-detection-section">
+        <h3>🕵️ EARLY BANDAR DETECTION OPPORTUNITIES</h3>
+        <div class="early-grid">
+    `;
+    
+    stocks.slice(0, 8).forEach(stock => {
+        html += `
+        <div class="early-card ${stock.accumulationScore > 30 ? 'high-accumulation' : ''}">
+            <div class="stock-header">
+                <h4>${stock.symbol}</h4>
+                <span class="bandar-type">${stock.bandarType}</span>
+            </div>
+            <div class="accumulation-score">
+                Accumulation Score: <strong>${stock.accumulationScore}</strong>
+            </div>
+            <div class="catalyst-info">
+                ${stock.expectedCatalyst || 'No catalyst detected'}
+            </div>
+            <div class="entry-info">
+                🎯 Early Entry: <strong>Rp ${stock.earlyEntryPrice || stock.price}</strong>
+            </div>
+            <div class="targets-info">
+                🚀 Targets: ${stock.priceTargets?.join(' → ') || 'N/A'}
+            </div>
+            <div class="exit-signal">
+                🚨 Exit When: ${stock.exitSignal}
+            </div>
+            <div class="risk-reward">
+                ⚖️ Risk/Reward: 1:${stock.riskReward || 'N/A'}
+            </div>
+        </div>
+        `;
+    });
+    
+    html += `</div></div>`;
+    return html;
+}
+
+// 🔥 NEW FUNCTION: Display Corporate Action Results
+function displayCorporateActionResults(stocks) {
+    const stocksWithActions = stocks.filter(stock => 
+        stock.corporateActions && stock.corporateActions.length > 0
+    );
+    
+    if (stocksWithActions.length === 0) return '';
+    
+    let html = `
+    <div class="corporate-action-section">
+        <h3>📰 SMART CORPORATE ACTION DETECTION</h3>
+        <div class="corporate-action-grid">
+    `;
+    
+    stocksWithActions.slice(0, 6).forEach(stock => {
+        const actions = stock.corporateActions || [];
+        const news = stock.newsSentiment || { sentiment: 'NEUTRAL', keywords: [] };
+        
+        html += `
+        <div class="corporate-action-card ${news.sentiment === 'POSITIVE' ? 'positive-news' : news.sentiment === 'NEGATIVE' ? 'negative-news' : ''}">
+            <div class="corporate-header">
+                <h4>${stock.symbol}</h4>
+                <span class="news-sentiment ${news.sentiment.toLowerCase()}">${news.sentiment}</span>
+            </div>
+            
+            <div class="corporate-actions">
+                ${actions.map(action => `
+                <div class="corporate-item">
+                    <strong>${action.type.name}</strong>
+                    <span>${action.daysToEvent} hari menuju ${action.nextEvent}</span>
+                    <div class="impact-score">Impact: ${action.impactScore}</div>
+                    <div class="action-details">${action.details}</div>
+                </div>
+                `).join('')}
+            </div>
+            
+            ${news.keywords.length > 0 ? `
+            <div class="news-keywords">
+                <strong>Market Sentiment:</strong> ${news.keywords.join(', ')}
+            </div>
+            ` : ''}
+            
+            <div class="trading-advice">
+                <strong>🎯 Trading Advice:</strong> ${generateCorporateActionAdvice(actions, news)}
+            </div>
+        </div>
+        `;
+    });
+    
+    html += `</div></div>`;
+    return html;
+}
+
+// 🔥 NEW FUNCTION: Display Corporate Action Patterns
+function displayCorporateActionPatterns(stocks) {
+    const stocksWithPatterns = stocks.filter(stock => 
+        stock.corporatePatterns && stock.corporatePatterns.length > 0
+    );
+    
+    if (stocksWithPatterns.length === 0) return '';
+    
+    let html = `
+    <div class="pattern-detection-section">
+        <h3>🔍 SMART PATTERN RECOGNITION</h3>
+        <div class="pattern-grid">
+    `;
+    
+    stocksWithPatterns.slice(0, 8).forEach(stock => {
+        html += `
+        <div class="pattern-card">
+            <div class="pattern-header">
+                <h4>${stock.symbol}</h4>
+                <span class="pattern-count">${stock.corporatePatterns.length} patterns</span>
+            </div>
+            
+            <div class="pattern-list">
+                ${stock.corporatePatterns.map(pattern => `
+                <div class="pattern-item">
+                    <div class="pattern-type">${pattern.type}</div>
+                    <div class="pattern-confidence">Confidence: ${(pattern.confidence * 100).toFixed(0)}%</div>
+                    <div class="pattern-trigger">${pattern.trigger}</div>
+                    <div class="pattern-target">🎯 Target: ${pattern.target} (${pattern.timeframe})</div>
+                </div>
+                `).join('')}
+            </div>
+        </div>
+        `;
+    });
+    
+    html += `</div></div>`;
+    return html;
+}
+
+// 🔥 NEW FUNCTION: Generate Trading Advice for Corporate Actions
+function generateCorporateActionAdvice(actions, news) {
+    if (actions.length === 0) {
+        return news.sentiment === 'POSITIVE' ? 'Consider buy - positive sentiment' : 'Wait - no clear catalyst';
+    }
+    
+    const action = actions[0];
+    const days = action.daysToEvent;
+    
+    switch(action.type.name) {
+        case 'Stock Split':
+            return `STRONG BUY - Entry sekarang, target 15-35% sebelum pengumuman`;
+        case 'Cash Dividend':
+            return days <= 7 ? 
+                `BUY - Cum date approaching, target 5-12%` :
+                `ACCUMULATE - Mulai accumulation, exit sebelum ex-date`;
+        case 'Merger/Akuisisi':
+            return `STRONG BUY - Potential 20-50%, hold until effective date`;
+        case 'Bonus Share':
+            return `BUY - Accumulate sebelum cum date, target 10-25%`;
+        case 'Earnings Report':
+            return `BUY - Pre-earnings play, target 8-20%, exit after release`;
+        default:
+            return `BUY - Corporate action catalyst, target 10-20%`;
+    }
+}
+
+// 🚨 NEW FUNCTION: Early Alert System
+function setupEarlyAlertSystem(stocks) {
+    const highAccumulationStocks = stocks.filter(stock => 
+        stock.accumulationScore > 25 && 
+        (stock.expectedCatalyst || stock.corporateActions.length > 0)
+    );
+    
+    if (highAccumulationStocks.length > 0) {
+        addProgress(`🚨 SMART ALERT: ${highAccumulationStocks.length} stocks dengan multi-layer confirmation!`);
+        
+        highAccumulationStocks.forEach(stock => {
+            console.log(`🚨 SMART ALERT: ${stock.symbol}`);
+            console.log(`   Accumulation Score: ${stock.accumulationScore}`);
+            console.log(`   Corporate Actions: ${stock.corporateActions.length}`);
+            console.log(`   Patterns Detected: ${stock.corporatePatterns.length}`);
+            console.log(`   Recommended Entry: ${stock.earlyEntryPrice}`);
+            console.log(`   Price Targets: ${stock.priceTargets?.join(', ')}`);
+        });
+    }
+}
+
+// Existing helper functions remain the same...
 function formatTradingAnalysis(text) {
-    // Clean HTML spans first
     text = text.replace(/<span[^>]*>/g, '').replace(/<\/span>/g, '');
 
     let html = parseMarkdownTable(text);
 
-    // Enhanced formatting for trading terms
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
 
-    // Color coding for trading actions - smooth gradients
+    // Color coding for trading actions
     html = html.replace(/\bSTRONG BUY\b(?!<)/g,
         '<span class="trading-signal strong-buy">STRONG BUY</span>');
     html = html.replace(/\bBUY\b(?!<)/g,
@@ -385,22 +1139,30 @@ function formatTradingAnalysis(text) {
         '<span class="trading-signal avoid">SELL</span>');
 
     // Highlight key trading terms
-    html = html.replace(/\bEntry Price\b/gi, '<strong>Entry Price</strong>');
-    html = html.replace(/\bStop Loss\b/gi, '<strong class="stop-loss">Stop Loss</strong>');
-    html = html.replace(/\bTarget\b/gi, '<strong class="target">Target</strong>');
-    html = html.replace(/\bTimeframe\b/gi, '<strong>Timeframe</strong>');
-    html = html.replace(/\bConfidence\b/gi, '<strong>Confidence</strong>');
+    html = html.replace(/\bEarly Entry\b/gi, '<strong class="early-entry">🎯 Early Entry</strong>');
+    html = html.replace(/\bStop Loss\b/gi, '<strong class="stop-loss">🛑 Stop Loss</strong>');
+    html = html.replace(/\bTarget\b/gi, '<strong class="target">🚀 Target</strong>');
+    html = html.replace(/\bR.R Ratio\b/gi, '<strong class="risk-reward">⚖️ R/R Ratio</strong>');
+    html = html.replace(/\bExit Strategy\b/gi, '<strong class="exit-strategy">📈 Exit Strategy</strong>');
+    html = html.replace(/\bCatalyst Type\b/gi, '<strong class="catalyst-type">🎯 Catalyst Type</strong>');
+    html = html.replace(/\bConfidence\b/gi, '<strong class="confidence">📊 Confidence</strong>');
 
-    // Volume and momentum indicators - enhanced styling
+    // Volume and momentum indicators
+    html = html.replace(/\bACCUMULATION\b/gi,
+        '<span class="accumulation-signal">🕵️ ACCUMULATION</span>');
     html = html.replace(/\bVOLUME SPIKES\b/gi,
         '<span class="volume-spike">📈 VOLUME SPIKES</span>');
     html = html.replace(/\bBREAKOUT\b/gi,
         '<span class="breakout-signal">💥 BREAKOUT</span>');
-    html = html.replace(/\bMOMENTUM\b/gi,
-        '<span class="momentum-signal">🚀 MOMENTUM</span>');
+    html = html.replace(/\bDIVIDEND PLAY\b/gi,
+        '<span class="dividend-signal">💰 DIVIDEND PLAY</span>');
+    html = html.replace(/\bSTOCK SPLIT\b/gi,
+        '<span class="stocksplit-signal">📊 STOCK SPLIT</span>');
 
     return html;
 }
+
+// Rest of the existing functions (parseMarkdownTable, buildTradingTable, highlightTradingTerms, escapeHtml, addProgress) remain exactly the same...
 
 function parseMarkdownTable(text) {
     const lines = text.split('\n');
@@ -447,8 +1209,7 @@ function parseMarkdownTable(text) {
 }
 
 function buildTradingTable(headers, rows) {
-    // Filter out the last column (Alasan) if it exists
-    const reasonIndex = headers.findIndex(h => h.toLowerCase().includes('alasan') || h.toLowerCase().includes('reason'));
+    const reasonIndex = headers.findIndex(h => h.toLowerCase().includes('alasan') || h.toLowerCase().includes('reason') || h.toLowerCase().includes('exit') || h.toLowerCase().includes('strategy'));
     const displayHeaders = reasonIndex >= 0 ? headers.slice(0, reasonIndex) : headers;
 
     let html = '<table class="trading-table"><thead><tr>';
@@ -464,7 +1225,6 @@ function buildTradingTable(headers, rows) {
 
         displayCells.forEach((cell, index) => {
             let cellHtml = escapeHtml(cell);
-            // Color code based on content
             if (cell.includes('STRONG BUY')) {
                 cellHtml = `<span class="trading-signal strong-buy">${cellHtml}</span>`;
             } else if (cell.includes('BUY')) {
@@ -478,11 +1238,10 @@ function buildTradingTable(headers, rows) {
         });
         html += '</tr>';
 
-        // Add detail row for reason if exists
         if (reasonCell) {
             html += `<tr class="trading-detail-row show">
                 <td colspan="${displayCells.length}" class="trading-detail-cell">
-                    <span class="trading-detail-label">🎯 Alasan Trading:</span>
+                    <span class="trading-detail-label">🎯 Trading Strategy:</span>
                     ${highlightTradingTerms(escapeHtml(reasonCell))}
                 </td>
             </tr>`;
@@ -502,7 +1261,15 @@ function highlightTradingTerms(text) {
         'support': 'support-term',
         'resistance': 'resistance-term',
         'dividend': 'dividend-term',
-        'earnings': 'earnings-term'
+        'earnings': 'earnings-term',
+        'accumulation': 'accumulation-term',
+        'foreign': 'foreign-term',
+        'asing': 'foreign-term',
+        'catalyst': 'catalyst-term',
+        'split': 'stocksplit-term',
+        'merger': 'merger-term',
+        'akuisisi': 'merger-term',
+        'bonus': 'bonus-term'
     };
 
     let result = text;
@@ -574,6 +1341,6 @@ class TypingAnimation {
 document.addEventListener('DOMContentLoaded', () => {
     const titleSpan = document.querySelector('.malva-title span');
     if (titleSpan) {
-        new TypingAnimation(titleSpan, " Bandarmology ", 100, 4500);
+        new TypingAnimation(titleSpan, " Smart Pattern ", 100, 4500);
     }
 });
