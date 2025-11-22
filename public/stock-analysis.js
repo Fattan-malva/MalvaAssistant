@@ -574,6 +574,6 @@ class TypingAnimation {
 document.addEventListener('DOMContentLoaded', () => {
     const titleSpan = document.querySelector('.malva-title span');
     if (titleSpan) {
-        new TypingAnimation(titleSpan, " Bandarmology Trading Analysis by Malva ", 100, 4500);
+        new TypingAnimation(titleSpan, " Bandarmology ", 100, 4500);
     }
 });

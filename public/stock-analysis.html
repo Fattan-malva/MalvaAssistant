@@ -560,8 +560,6 @@
             border: 1px solid rgba(168, 85, 247, 0.15);
             border-radius: 16px;
             padding: 20px;
-            overflow-y: auto;
-            overflow-x: hidden;
             font-family: "Fira Code", monospace;
             display: flex;
             flex-direction: column;
@@ -613,7 +611,6 @@
             word-wrap: break-word;
             animation: fadeIn 0.5s ease;
             max-width: 100%;
-            -webkit-overflow-scrolling: touch;
         }
 
         .analysis-result > * {
@@ -738,16 +735,19 @@
 
             .content {
                 padding: 12px;
+                overflow-x: hidden;
             }
 
             #results {
                 font-size: 0.85rem;
                 padding: 12px;
+                overflow-x: auto;
             }
 
             .trading-summary {
                 padding: 16px;
                 margin-bottom: 16px;
+                overflow-x: auto;
             }
 
             .trading-summary h3 {
@@ -763,6 +763,10 @@
             .trading-table {
                 font-size: 0.75em;
                 margin: 10px 0;
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                border-radius: 8px;
             }
 
             .trading-table th {
@@ -786,11 +790,20 @@
             .analysis-result {
                 padding: 12px;
                 overflow-x: auto;
+                max-width: 100%;
+            }
+
+            .analysis-result .message-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                border-radius: 8px;
             }
 
             .progress-item {
                 padding: 10px 12px;
                 font-size: 0.85rem;
+                word-break: break-word;
             }
         }
 
@@ -834,16 +847,19 @@
 
             .content {
                 padding: 10px;
+                overflow-x: hidden;
             }
 
             #results {
                 font-size: 0.75rem;
                 padding: 10px;
+                overflow-x: auto;
             }
 
             .trading-summary {
                 padding: 12px;
                 margin-bottom: 12px;
+                overflow-x: auto;
             }
 
             .trading-summary h3 {
@@ -862,19 +878,27 @@
             .trading-table {
                 font-size: 0.65em;
                 margin: 8px 0;
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 8px;
             }
 
             .trading-table th {
                 padding: 4px 3px;
+                white-space: nowrap;
             }
 
             .trading-table td {
                 padding: 4px 3px;
+                white-space: nowrap;
             }
 
             .trading-detail-cell {
                 padding: 6px 4px;
                 font-size: 0.7em;
+                word-break: break-word;
             }
 
             .trading-detail-label {
@@ -890,11 +914,27 @@
                 padding: 10px;
                 overflow-x: auto;
                 -webkit-overflow-scrolling: touch;
+                max-width: 100%;
+            }
+
+            .analysis-result .message-table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                border-radius: 8px;
+            }
+
+            .analysis-result .message-table th,
+            .analysis-result .message-table td {
+                white-space: nowrap;
+                word-break: normal;
             }
 
             .progress-item {
                 padding: 8px 10px;
                 font-size: 0.75rem;
+                word-break: break-word;
             }
 
             .volume-spike-term,
