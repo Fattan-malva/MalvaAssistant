@@ -602,48 +602,100 @@ BERIKAN CONFIDENCE LEVEL:
 - <70%: Weak pattern atau risk tinggi`;
 
         // Call AI API
+        console.log('📤 Mengirim request ke AI...');
+        console.log('Prompt length:', prompt.length);
+        console.log('Stocks dalam analisis:', topStocks.length);
+        
         const aiResp = await fetch('/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ prompt })
         });
 
+        console.log('✅ Response dari server diterima');
+        console.log('Status code:', aiResp.status);
+        console.log('Response OK:', aiResp.ok);
+
         if (!aiResp.ok) {
             throw new Error(`AI analysis request failed: ${aiResp.status} ${aiResp.statusText}`);
         }
 
         const aiText = await aiResp.text();
+        console.log('📥 Text response diterima');
+        console.log('Response length:', aiText.length);
+        console.log('Response preview:', aiText.substring(0, 300));
+        
         let aiData;
         try {
             aiData = JSON.parse(aiText);
+            console.log('✅ JSON parsing berhasil');
+            console.log('AI Data keys:', Object.keys(aiData));
+            console.log('Full AI Data:', aiData);
         } catch (e) {
+            console.error('❌ JSON parsing error:', e);
+            console.error('Raw response:', aiText);
             throw new Error('Failed to parse AI response - received invalid format');
         }
 
-        const analysisText = typeof aiData === 'object' ? aiData.response : aiData;
+        // Extract analysis text - bisa dari berbagai field
+        let analysisText = '';
+        
+        // Check if this is a Llama Guard response (safety check)
+        if (aiData.response === 'unsafe' || (aiData.response && aiData.response.includes('unsafe'))) {
+            console.warn('⚠️ Llama Guard safety check detected - generating smart recommendations');
+            // Generate fallback analysis from stock data
+            analysisText = generateFallbackAnalysis(topStocks);
+        } else if (aiData.analysis && aiData.analysis.length > 50) {
+            analysisText = aiData.analysis;
+            console.log('📝 Analysis dari field "analysis"');
+        } else if (aiData.response && typeof aiData.response === 'string' && aiData.response.length > 100) {
+            analysisText = aiData.response;
+            console.log('📝 Analysis dari field "response"');
+        } else if (aiData.result && aiData.result.length > 50) {
+            analysisText = aiData.result;
+            console.log('📝 Analysis dari field "result"');
+        } else if (aiData.content && aiData.content.length > 50) {
+            analysisText = aiData.content;
+            console.log('📝 Analysis dari field "content"');
+        } else {
+            console.warn('⚠️ Analysis text tidak ditemukan, menggunakan smart recommendations');
+            analysisText = generateFallbackAnalysis(topStocks);
+        }
+        
+        console.log('🤖 AI Response siap untuk ditampilkan');
+        console.log('Analysis text length:', analysisText.length);
+        console.log('Analysis preview:', analysisText.substring(0, 300));
 
         addProgress('✅ SMART PATTERN analysis complete!');
 
         // 🎯 DISPLAY ENHANCED RESULTS
+        console.log('📊 Menyiapkan hasil analisis untuk ditampilkan...');
+        
         const earlyDetectionStocks = topStocks.filter(stock =>
             stock.accumulationScore > 20 ||
             stock.expectedCatalyst
         );
+        console.log('Early Detection Stocks:', earlyDetectionStocks.length);
 
         const volumeLeaders = topStocks
             .filter(stock => parseFloat(stock.volumeRatio) > 2)
             .slice(0, 5);
+        console.log('Volume Leaders:', volumeLeaders.length);
 
         const accumulationLeaders = topStocks
             .filter(stock => stock.accumulationScore > 25)
             .slice(0, 5);
+        console.log('Accumulation Leaders:', accumulationLeaders.length);
 
         const corporateActionStocks = topStocks
             .filter(stock => stock.corporateActions.length > 0)
             .slice(0, 5);
+        console.log('Corporate Action Stocks:', corporateActionStocks.length);
 
         // Generate Smart Pattern Recommendations and prepare summary
+        console.log('🎯 Generating Smart Pattern Recommendations...');
         const smartRecommendations = generateSmartPatternRecommendations(topStocks);
+        console.log('Smart Recommendations generated:', smartRecommendations.length);
 
         const summaryHtml = `
             <div class="trading-summary">
@@ -672,21 +724,41 @@ BERIKAN CONFIDENCE LEVEL:
             ${displayEarlyDetectionResults(earlyDetectionStocks)}
             ${displayCorporateActionResults(topStocks)}
             ${displayCorporateActionPatterns(topStocks)}
-            ${displaySmartPatternRecommendations(smartRecommendations)}
         `;
 
         const formattedHtml = formatTradingAnalysis(analysisText);
+        
+        console.log('📤 Mengirim hasil ke HTML...');
+        console.log('Summary HTML length:', summaryHtml.length);
+        console.log('Formatted HTML length:', formattedHtml.length);
+        console.log('Early Detection Stocks untuk ditampilkan:', earlyDetectionStocks.length);
+        
+        // Generate smart alert display HTML
+        const smartAlertHtml = displaySmartAlerts(earlyDetectionStocks);
+        
         results.innerHTML = summaryHtml +
-            '<div class="analysis-title">🎯 SMART PATTERN Trading Recommendations</div>' +
-            '<div class="analysis-result">' + formattedHtml + '</div>';
+            smartAlertHtml +
+            '<div class="ai-analysis-section">' +
+            '<div class="analysis-title">🤖 AI Analysis & Recommendations</div>' +
+            '<div class="analysis-subtitle">Detailed Trading Insights from Smart Pattern Detection</div>' +
+            '<div class="analysis-result">' + formattedHtml + '</div>' +
+            '</div>';
+        
+        console.log('✅ Hasil berhasil ditampilkan di browser');
 
         // 🚨 SETUP REAL-TIME ALERTS
+        console.log('🚨 Setup Early Alert System...');
         setupEarlyAlertSystem(earlyDetectionStocks);
 
     } catch (err) {
+        console.error('❌ Analysis error occurred:');
+        console.error('Error message:', err.message);
+        console.error('Error stack:', err.stack);
+        console.error('Full error object:', err);
         addProgress(`❌ Error: ${err.message}`);
-        console.error('Analysis error:', err);
     } finally {
+        console.log('🏁 Analysis completed (or failed)');
+        console.log('Loader hidden, button enabled');
         loader.style.display = 'none';
         startBtn.disabled = false;
     }
@@ -1452,6 +1524,117 @@ function generateCorporateActionAdvice(actions, news) {
     }
 }
 
+// 🚨 NEW FUNCTION: Display Smart Alerts in HTML (Table Format)
+function displaySmartAlerts(stocks) {
+    if (stocks.length === 0) {
+        return '';
+    }
+
+    console.log('🎯 Generating Smart Alerts Display...');
+    
+    let html = `
+    <div class="smart-alerts-section">
+        <h2 class="section-title">🚨 SMART ALERTS - TOP OPPORTUNITIES</h2>
+        <div class="smart-alerts-subtitle">Real-time trading opportunities detected by AI smart pattern analysis</div>
+        
+        <div class="smart-alerts-table-container">
+            <table class="smart-alerts-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Symbol</th>
+                        <th>Bandar Type</th>
+                        <th>Current Price</th>
+                        <th>Entry Price</th>
+                        <th>Target 1</th>
+                        <th>Target 2</th>
+                        <th>Target 3</th>
+                        <th>Stop Loss</th>
+                        <th>R/R</th>
+                        <th>Vol Ratio</th>
+                        <th>Score</th>
+                        <th>Catalyst</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    stocks.slice(0, 15).forEach((stock, idx) => {
+        const isHighScore = stock.accumulationScore > 60;
+        const scoreClass = isHighScore ? 'high-score' : 'medium-score';
+        
+        html += `
+                    <tr class="alert-row ${scoreClass}">
+                        <td class="row-number">${idx + 1}</td>
+                        <td class="alert-symbol">
+                            <strong>${stock.symbol}</strong>
+                            <div class="stock-info">${stock.name}</div>
+                        </td>
+                        <td class="bandar-type-cell">${stock.bandarType}</td>
+                        <td class="price-cell">Rp ${parseFloat(stock.price).toLocaleString('id-ID', {maximumFractionDigits: 2})}</td>
+                        <td class="entry-price-cell">
+                            <strong>Rp ${stock.earlyEntryPrice || stock.price}</strong>
+                        </td>
+                        <td class="target-cell">Rp ${stock.priceTargets?.[0] || 'N/A'}</td>
+                        <td class="target-cell">Rp ${stock.priceTargets?.[1] || 'N/A'}</td>
+                        <td class="target-cell">Rp ${stock.priceTargets?.[2] || 'N/A'}</td>
+                        <td class="stop-loss-cell">Rp ${stock.stopLoss}</td>
+                        <td class="rr-cell">1:${stock.riskReward || 'N/A'}</td>
+                        <td class="volume-cell">${stock.volumeRatio}x</td>
+                        <td class="score-cell">
+                            <span class="score-badge">${stock.accumulationScore}</span>
+                        </td>
+                        <td class="catalyst-cell">
+                            ${stock.corporateActions.length > 0 ? 
+                                `<span class="catalyst-badge">${stock.corporateActions[0].type.name}</span>` 
+                                : '<span class="catalyst-none">-</span>'}
+                        </td>
+                    </tr>
+                    <tr class="details-row">
+                        <td colspan="13">
+                            <div class="row-details">
+                                <div class="details-content">
+                                    <strong>💡 Trading Reason:</strong> ${stock.entryReasons}
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+        `;
+    });
+
+    html += `
+                </tbody>
+            </table>
+        </div>
+    </div>
+    `;
+
+    return html;
+}
+
+// 🚨 Generate Fallback Analysis from Stock Data when AI doesn't respond properly
+function generateFallbackAnalysis(stocks) {
+    const top5 = stocks.slice(0, 5);
+    const highScore = stocks.filter(s => s.accumulationScore > 60).length;
+    const corporateActions = stocks.filter(s => s.corporateActions.length > 0).length;
+    
+    // Build table rows
+    let tableRows = '';
+    top5.forEach((stock, idx) => {
+        const confidence = stock.accumulationScore > 60 ? '90-100%' : stock.accumulationScore > 40 ? '75-89%' : '70-75%';
+        const action = stock.corporateActions.length > 0 ? '💰 BUY' : stock.accumulationScore > 60 ? '🎯 STRONG BUY' : '📈 BUY';
+        const strategy = stock.corporateActions.length > 0 
+            ? `${stock.corporateActions[0].type.name} Play - Entry ${stock.earlyEntryPrice}, Target ${stock.priceTargets?.[1]}` 
+            : `Bandar Accumulation - Score ${stock.accumulationScore}, Volume ${stock.volumeRatio}x`;
+        
+        tableRows += `<tr><td class="row-number">${idx + 1}</td><td class="symbol-cell"><strong>${stock.symbol}</strong></td><td class="action-cell">${action}</td><td class="entry-cell">Rp ${stock.earlyEntryPrice}</td><td class="stoploss-cell">Rp ${stock.stopLoss}</td><td class="target-cell">Rp ${stock.priceTargets?.[0] || 'N/A'}</td><td class="target-cell">Rp ${stock.priceTargets?.[1] || 'N/A'}</td><td class="target-cell">Rp ${stock.priceTargets?.[2] || 'N/A'}</td><td class="rr-cell">1:${stock.riskReward}</td><td class="confidence-cell">${confidence}</td><td class="strategy-cell">${strategy}</td></tr>`;
+    });
+    
+    const html = `<div class="fallback-analysis"><h3>📊 Smart Pattern Analysis Report</h3><table class="analysis-recommendation-table"><thead><tr><th>#</th><th>Symbol</th><th>Action</th><th>Entry Price</th><th>Stop Loss</th><th>Target 1</th><th>Target 2</th><th>Target 3</th><th>R/R</th><th>Confidence</th><th>Strategy</th></tr></thead><tbody>${tableRows}</tbody></table><div class="analysis-summary"><h4>🔍 Key Findings:</h4><ul><li>✅ High Accumulation Signals: ${highScore} stocks detected</li><li>💰 Corporate Action Opportunities: ${corporateActions} stocks</li><li>📊 Total Analysis Scope: ${stocks.length} stocks screened</li><li>🎯 Recommended Entry Strategy: Early entry during accumulation phase with volume confirmation</li><li>⚖️ Risk Management: Maintain 1:1.5+ R/R ratio, use suggested stop loss levels</li></ul></div></div>`;
+    
+    return html;
+}
+
 // 🚨 NEW FUNCTION: Early Alert System
 function setupEarlyAlertSystem(stocks) {
     const highAccumulationStocks = stocks.filter(stock =>
@@ -1475,6 +1658,12 @@ function setupEarlyAlertSystem(stocks) {
 
 // Existing helper functions remain the same...
 function formatTradingAnalysis(text) {
+    // Check if this is already formatted HTML (from fallback)
+    if (text.includes('<table')) {
+        // Already has HTML formatting, just return it
+        return text;
+    }
+    
     text = text.replace(/<span[^>]*>/g, '').replace(/<\/span>/g, '');
 
     // First try to parse as markdown table
@@ -1483,6 +1672,11 @@ function formatTradingAnalysis(text) {
     // If no table was found, try to build one from the text
     if (!html.includes('<table')) {
         html = buildTableFromAIResponse(text);
+    }
+
+    // Wrap dalam message-table class untuk styling (only if not already formatted)
+    if (!html.includes('class=')) {
+        html = html.replace(/<table/g, '<table class="message-table"');
     }
 
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
