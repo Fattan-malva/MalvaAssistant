@@ -1,0 +1,280 @@
+Replace 1: Add new properties in constructor of AIChat class
+
+<<<<<<< constructor() {
+        this.apiUrl = 'https://malva-assistant-api.vercel.app/chat';
+        this.chatMessages = document.getElementById('chat-messages');
+        this.userInput = document.getElementById('user-input');
+        this.sendButton = document.getElementById('send-button');
+        this.loading = document.getElementById('loading');
+        this.rules = null;
+=======
+constructor() {
+        this.apiUrl = 'https://malva-assistant-api.vercel.app/chat';
+        this.chatMessages = document.getElementById('chat-messages');
+        this.userInput = document.getElementById('user-input');
+        this.sendButton = document.getElementById('send-button');
+        this.loading = document.getElementById('loading');
+        this.rules = null;
+        this.stockSymbols = [];
+        this.isAnalyzingStocks = false;
+>>>>>>> Add new properties
+
+Replace 2: Add call to loadStockSymbols in constructor after loadRules()
+
+<<<<<<<
+        this.loadRules();
+        this.initializeEventListeners();
+    }
+=======
+        this.loadRules();
+        this.loadStockSymbols();
+        this.initializeEventListeners();
+    }
+>>>>>>> Add loadStockSymbols call
+
+Replace 3: Add new method loadStockSymbols
+
+<<<<<<<
+    async loadRules() {
+        try {
+            const response = await fetch('rules.json');
+            this.rules = await response.json();
+        } catch (error) {
+            console.error('Failed to load rules.json:', error);
+        }
+    }
+=======
+    async loadRules() {
+        try {
+            const response = await fetch('rules.json');
+            this.rules = await response.json();
+        } catch (error) {
+            console.error('Failed to load rules.json:', error);
+        }
+    }
+
+    async loadStockSymbols() {
+        try {
+            const response = await fetch('resources/data.json');
+            this.stockSymbols = await response.json();
+            console.log('Loaded stock symbols:', this.stockSymbols.length);
+        } catch (error) {
+            console.error('Failed to load resources/data.json:', error);
+        }
+    }
+>>>>>>> Add loadStockSymbols method
+
+Replace 4: Modify sendMessage to intercept stock analysis commands
+
+<<<<<<<
+    async sendMessage() {
+        const message = this.userInput.value.trim();
+        if (!message) return;
+=======
+    async sendMessage() {
+        const message = this.userInput.value.trim();
+        if (!message) return;
+
+        // Check if user requested stock analysis
+        if (message.toLowerCase() === 'analyze stocks' || message.toLowerCase() === 'stock analysis' || message.toLowerCase() === 'analisa saham') {
+            if (this.isAnalyzingStocks) {
+                this.addMessage('Sedang memproses analisa saham, mohon tunggu sebentar...', 'bot');
+                this.userInput.value = '';
+                return;
+            }
+            this.userInput.value = '';
+            this.autoResizeTextarea();
+            this.isAnalyzingStocks = true;
+            this.addMessage('Memulai analisa saham, mohon tunggu sebentar...', 'bot');
+            await this.performStockAnalysis();
+            this.isAnalyzingStocks = false;
+            return;
+        }
+>>>>>>> Intercept stock analysis commands
+
+Replace 5: Add performStockAnalysis method
+
+<<<<<<<
+    async sendMessage() {
+        const message = this.userInput.value.trim();
+        if (!message) return;
+
+        // Tambah pesan user ke chat (bersama id)
+        const userMsgDiv = this.addMessage(message, 'user', { id: this.generateId() });
+        const userId = userMsgDiv.dataset.id;
+
+        this.userInput.value = '';
+        this.autoResizeTextarea(); // Reset height after sending
+
+        // Tampilkan loading
+        this.showLoading(true);
+
+        try {
+            let botReply;
+
+            // Check for identity questions
+            if (this.isIdentityQuestion(message)) {
+                botReply = this.rules?.identity_response?.response || 'Saya Malva Assistant, dibuat oleh Fattan Malva. Lumayan keren ya? Apa yang bisa saya bantu hari ini?';
+            } else {
+                // Kirim request ke API with style instructions
+                const response = await this.callAPI(message);
+
+                // Ambil hanya isi respon dari field "response"
+                botReply = typeof response === 'object' ? response.response : response;
+            }
+
+            // Tambah response AI ke chat dan tandai reply-to userId
+            this.addMessage(botReply, 'bot', { replyTo: userId });
+
+        } catch (error) {
+            console.error('Error:', error);
+            this.addMessage('Oops, ada error nih. Coba lagi ya!', 'bot', { replyTo: userId });
+        } finally {
+            this.showLoading(false);
+        }
+    }
+=======
+    // New method to perform stock analysis by fetching stock data and calling AI for screening
+    async performStockAnalysis() {
+        try {
+            // Fetch stock data for each symbol, then prepare summary for AI prompt
+            const stockDataList = [];
+            const maxStocks = 15; // Limit the number of stocks to analyze to avoid overload
+            for (let i = 0; i < Math.min(this.stockSymbols.length, maxStocks); i++) {
+                const symbol = this.stockSymbols[i];
+                try {
+                    const data = await this.fetchStockData(symbol);
+                    if (data && data.success && data.data) {
+                        stockDataList.push(data.data);
+                    }
+                } catch (err) {
+                    console.error(`Failed to fetch stock data for ${symbol}: `, err);
+                }
+            }
+
+            if (stockDataList.length === 0) {
+                this.addMessage('Maaf, gagal mendapatkan data saham untuk analisa.', 'bot');
+                return;
+            }
+
+            // Prepare prompt: Summarize key stock data and ask AI to screen BUY or SELL
+            let prompt = 'Tolong analisa saham-saham berikut dan berikan rekomendasi BUY atau SELL untuk masing-masing berdasarkan data yang tersedia:\n\n';
+            stockDataList.forEach(stock => {
+                prompt += `Symbol: ${stock.symbol}\n`;
+                prompt += `Name: ${stock.name}\n`;
+                prompt += `Price: ${stock.price} ${stock.currency}\n`;
+                prompt += `Change: ${stock.change} (${stock.changePercent}%)\n`;
+                prompt += `Volume: ${stock.volume}\n`;
+                prompt += `Market Cap: ${stock.marketCap}\n`;
+                prompt += `Day High: ${stock.dayHigh}\n`;
+                prompt += `Day Low: ${stock.dayLow}\n`;
+                prompt += `Open: ${stock.open}\n`;
+                prompt += `Previous Close: ${stock.previousClose}\n`;
+                prompt += '---\n';
+            });
+
+            prompt += '\nBuat daftar saham dengan kolom Symbol, Name, dan rekomendasi BUY atau SELL serta alasan singkat.\n';
+
+            this.showLoading(true);
+            const response = await this.callAPI(prompt);
+            this.showLoading(false);
+
+            let botReply = typeof response === 'object' ? response.response : response;
+
+            this.addMessage(botReply, 'bot');
+
+        } catch (err) {
+            this.showLoading(false);
+            console.error('Error during stock analysis:', err);
+            this.addMessage('Terjadi kesalahan saat melakukan analisa saham.', 'bot');
+        }
+    }
+>>>>>>> Add performStockAnalysis method
+
+Replace 6: Add fetchStockData method
+
+<<<<<<<
+    parseCodeBlocks(text) {
+        const codeBlockRegex = /```([\w+-]*)?\n?([\s\S]*?)```/g;
+        let codeBlockIndex = 0;
+        const codeStore = {}; // Simpan kode asli di object terpisah
+
+        const result = text.replace(codeBlockRegex, (match, lang, code) => {
+            const language = lang && lang.trim() !== '' ? lang.trim() : 'code';
+            const codeId = `code-${codeBlockIndex++}`;
+            
+            // Simpan kode asli di object
+            codeStore[codeId] = code.trim();
+
+            // Escape HTML di tampilan
+            const escapedCode = code
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "<")
+                .replace(/>/g, ">")
+                .replace(/"/g, """)
+                .replace(/'/g, "&#39;");
+
+            // Return HTML - gunakan data-code-id bukan data-code
+            return `
+            <div class="code-block-container">
+                <div class="code-block-header">
+                    <span class="code-language">${language.toUpperCase()}</span>
+                    <button class="copy-code-btn" type="button" data-code-id="${codeId}" title="Copy code">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <pre class="code-block"><code class="language-${language}">${escapedCode}</code></pre>
+            </div>`;
+        });
+
+        // Simpan codeStore di contentDiv untuk akses nanti
+        return { html: result, codeStore };
+    }
+=======
+    async fetchStockData(symbol) {
+        const lowerSymbol = symbol.toLowerCase();
+        const url = \`https://sniper-ihsg.vercel.app/api/stocks/\${lowerSymbol}\`;
+        const response = await fetch(url);
+        if (!response.ok) {
+            throw new Error(\`HTTP error fetching stock \${symbol}: \${response.status}\`);
+        }
+        return await response.json();
+    }
+
+    parseCodeBlocks(text) {
+        const codeBlockRegex = /```([\w+-]*)?\n?([\s\S]*?)```/g;
+        let codeBlockIndex = 0;
+        const codeStore = {}; // Simpan kode asli di object terpisah
+
+        const result = text.replace(codeBlockRegex, (match, lang, code) => {
+            const language = lang && lang.trim() !== '' ? lang.trim() : 'code';
+            const codeId = `code-${codeBlockIndex++}`;
+            
+            // Simpan kode asli di object
+            codeStore[codeId] = code.trim();
+
+            // Escape HTML di tampilan
+            const escapedCode = code
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "<")
+                .replace(/>/g, ">")
+                .replace(/"/g, """)
+                .replace(/'/g, "&#39;");
+
+            // Return HTML - gunakan data-code-id bukan data-code
+            return `
+            <div class="code-block-container">
+                <div class="code-block-header">
+                    <span class="code-language">${language.toUpperCase()}</span>
+                    <button class="copy-code-btn" type="button" data-code-id="${codeId}" title="Copy code">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+                <pre class="code-block"><code class="language-${language}">${escapedCode}</code></pre>
+            </div>`;
+        });
+
+        // Simpan codeStore di contentDiv untuk akses nanti
+        return { html: result, codeStore };
+    }
+>>>>>>> Add fetchStockData method

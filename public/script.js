@@ -6,8 +6,11 @@ class AIChat {
         this.sendButton = document.getElementById('send-button');
         this.loading = document.getElementById('loading');
         this.rules = null;
+        this.stockSymbols = [];
+        this.isAnalyzingStocks = false;
 
         this.loadRules();
+        this.loadStockSymbols();
         this.initializeEventListeners();
     }
 
@@ -17,6 +20,16 @@ class AIChat {
             this.rules = await response.json();
         } catch (error) {
             console.error('Failed to load rules.json:', error);
+        }
+    }
+
+    async loadStockSymbols() {
+        try {
+            const response = await fetch('resources/data.json');
+            this.stockSymbols = await response.json();
+            console.log('Loaded stock symbols:', this.stockSymbols.length);
+        } catch (error) {
+            console.error('Failed to load resources/data.json:', error);
         }
     }
 
@@ -50,6 +63,22 @@ class AIChat {
     async sendMessage() {
         const message = this.userInput.value.trim();
         if (!message) return;
+
+        // Check if user requested stock analysis
+        if (message.toLowerCase() === 'analyze stocks' || message.toLowerCase() === 'stock analysis' || message.toLowerCase() === 'analisa saham') {
+            if (this.isAnalyzingStocks) {
+                this.addMessage('Sedang memproses analisa saham, mohon tunggu sebentar...', 'bot');
+                this.userInput.value = '';
+                return;
+            }
+            this.userInput.value = '';
+            this.autoResizeTextarea();
+            this.isAnalyzingStocks = true;
+            this.addMessage('Memulai analisa saham, mohon tunggu sebentar...', 'bot');
+            await this.performStockAnalysis();
+            this.isAnalyzingStocks = false;
+            return;
+        }
 
         // Tambah pesan user ke chat (bersama id)
         const userMsgDiv = this.addMessage(message, 'user', { id: this.generateId() });
@@ -262,13 +291,20 @@ class AIChat {
         let tableHtml = '';
         let headers = [];
         let rows = [];
+        let beforeTableText = '';
 
-        for (let line of lines) {
+        for (let i = 0; i < lines.length; i++) {
+            const line = lines[i];
             if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
                 const cells = line.split('|').slice(1, -1).map(cell => cell.trim());
                 if (!inTable) {
+                    // Start of table
+                    if (beforeTableText.trim()) {
+                        tableHtml += beforeTableText.replace(/\n/g, '<br>') + '<br>';
+                    }
                     headers = cells;
                     inTable = true;
+                    beforeTableText = '';
                 } else if (cells.every(cell => cell.match(/^[-:]+$/))) {
                     // Separator line, skip
                     continue;
@@ -278,35 +314,54 @@ class AIChat {
             } else {
                 if (inTable) {
                     // End of table
-                    tableHtml += this.buildTable(headers, rows);
+                    tableHtml += this.buildTable(headers, rows) + '<br>';
                     inTable = false;
                     headers = [];
                     rows = [];
+                    beforeTableText = line;
+                } else {
+                    beforeTableText += (beforeTableText ? '\n' : '') + line;
                 }
-                tableHtml += line + '\n';
             }
         }
-        if (inTable) {
+        if (inTable && headers.length > 0) {
             tableHtml += this.buildTable(headers, rows);
+        } else if (beforeTableText.trim()) {
+            tableHtml += beforeTableText.replace(/\n/g, '<br>');
         }
-        return tableHtml.replace(/\n/g, '<br>');
+        return tableHtml;
     }
 
     buildTable(headers, rows) {
         let html = '<table class="message-table"><thead><tr>';
         headers.forEach(header => {
-            html += `<th>${header}</th>`;
+            // Escape HTML in header
+            const escapedHeader = this.escapeHtml(header);
+            html += `<th>${escapedHeader}</th>`;
         });
         html += '</tr></thead><tbody>';
         rows.forEach(row => {
             html += '<tr>';
             row.forEach(cell => {
-                html += `<td>${cell}</td>`;
+                // Escape HTML in cell
+                const escapedCell = this.escapeHtml(cell);
+                html += `<td>${escapedCell}</td>`;
             });
             html += '</tr>';
         });
         html += '</tbody></table>';
         return html;
+    }
+
+    escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
     }
 
     showLoading(show) {

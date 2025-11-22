@@ -18,13 +18,12 @@
             <span>Hi, I'm <span class="malva-highlight">Malva</span> Assistant</span>
         </h1>
 
-
         <div class="chat-container">
             <div id="chat-messages" class="chat-messages">
                 <div class="message bot-message">
-                    <!-- <div class="message-content">
+                    <div class="message-content">
                         Halo! Saya Malva Assistant. Ada yang bisa saya bantu?
-                    </div> -->
+                    </div>
                 </div>
             </div>
 
@@ -33,14 +32,20 @@
                 <button id="send-button" title="Send message">
                     <i class="fa-solid fa-paper-plane"></i>
                 </button>
-                <!-- <button id="speech-mode-button" title="Switch to speech mode">
-                    <i class="fa-solid fa-microphone"></i>
-                </button> -->
+                <button id="stock-analysis-menu-button">
+                    📊
+                </button>
             </div>
         </div>
 
         <!-- Loading moved inside chat-messages -->
     </div>
+
+    <script>
+        document.getElementById('stock-analysis-menu-button').addEventListener('click', () => {
+            window.location.href = 'stock-analysis.html';
+        });
+    </script>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="script.js"></script>
