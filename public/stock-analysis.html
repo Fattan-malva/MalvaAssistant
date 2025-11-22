@@ -679,6 +679,337 @@
             opacity: 0.6;
         }
 
+        /* Section Titles & Styling */
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #a855f7;
+            margin: 20px 0 16px 0;
+            padding: 12px 0;
+            border-bottom: 2px solid rgba(168, 85, 247, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Early Detection Card Styles */
+        .early-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .early-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(168, 85, 247, 0.04) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .early-card:hover {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.12) 0%, rgba(168, 85, 247, 0.08) 100%);
+            border-color: rgba(168, 85, 247, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+        }
+
+        .card-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #a855f7;
+        }
+
+        .card-subtitle {
+            font-size: 0.85em;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #e0e0e0;
+        }
+
+        .card-row .label {
+            color: #a0a0a0;
+            font-weight: 500;
+        }
+
+        .divider-thin {
+            height: 1px;
+            background: rgba(168, 85, 247, 0.15);
+            margin: 8px 0;
+        }
+
+        .card-highlight {
+            background: rgba(168, 85, 247, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid rgba(168, 85, 247, 0.4);
+        }
+
+        .highlight-row {
+            font-size: 0.85em;
+            color: #e0e0e0;
+            margin: 6px 0;
+            line-height: 1.4;
+        }
+
+        .highlight-row strong {
+            color: #00ff88;
+            font-weight: 700;
+        }
+
+        /* Corporate Action Card Styles */
+        .corporate-action-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .corporate-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(168, 85, 247, 0.04) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .corporate-card.positive {
+            border-left: 4px solid #00ff88;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+        }
+
+        .corporate-card.negative {
+            border-left: 4px solid #ff6666;
+            background: linear-gradient(135deg, rgba(255, 102, 102, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+        }
+
+        .corporate-card.neutral {
+            border-left: 4px solid #ffdd66;
+            background: linear-gradient(135deg, rgba(255, 221, 102, 0.05) 0%, rgba(102, 126, 234, 0.05) 100%);
+        }
+
+        .corporate-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card-symbol {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #a855f7;
+        }
+
+        .sentiment-badge {
+            font-size: 0.75em;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .sentiment-badge.positive {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .sentiment-badge.negative {
+            background: rgba(255, 102, 102, 0.2);
+            color: #ff6666;
+            border: 1px solid rgba(255, 102, 102, 0.3);
+        }
+
+        .sentiment-badge.neutral {
+            background: rgba(255, 221, 102, 0.2);
+            color: #ffdd66;
+            border: 1px solid rgba(255, 221, 102, 0.3);
+        }
+
+        .corporate-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .action-type {
+            font-size: 1em;
+            font-weight: 700;
+            color: #a855f7;
+        }
+
+        .action-timing {
+            font-size: 0.85em;
+            color: #ffaa33;
+            font-weight: 600;
+        }
+
+        .action-impact {
+            font-size: 0.9em;
+            color: #e0e0e0;
+        }
+
+        .action-impact strong {
+            color: #00ff88;
+            font-weight: 700;
+        }
+
+        .action-details {
+            font-size: 0.85em;
+            color: #c0c0c0;
+            line-height: 1.4;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+
+        .sentiment-section {
+            background: rgba(0, 0, 0, 0.15);
+            padding: 10px;
+            border-radius: 8px;
+        }
+
+        .sentiment-label {
+            font-size: 0.85em;
+            font-weight: 700;
+            color: #a855f7;
+            margin-bottom: 6px;
+        }
+
+        .sentiment-keywords {
+            font-size: 0.8em;
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        .trading-advice-box {
+            background: rgba(102, 126, 234, 0.15);
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 3px solid rgba(102, 126, 234, 0.5);
+        }
+
+        .trading-advice-box strong {
+            color: #a855f7;
+            font-weight: 700;
+        }
+
+        .advice-text {
+            font-size: 0.85em;
+            color: #e0e0e0;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* Pattern Detection Section */
+        .pattern-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .pattern-card {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.08) 0%, rgba(168, 85, 247, 0.04) 100%);
+            border: 1px solid rgba(168, 85, 247, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .pattern-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.15);
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+
+        .pattern-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .pattern-header h4 {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #a855f7;
+            margin: 0;
+        }
+
+        .pattern-count {
+            font-size: 0.75em;
+            background: rgba(168, 85, 247, 0.2);
+            color: #a855f7;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+
+        .pattern-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pattern-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 3px solid rgba(102, 126, 234, 0.3);
+        }
+
+        .pattern-type {
+            font-size: 0.9em;
+            font-weight: 700;
+            color: #00ff88;
+            margin-bottom: 6px;
+        }
+
+        .pattern-confidence {
+            font-size: 0.8em;
+            color: #ffaa33;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .pattern-trigger {
+            font-size: 0.8em;
+            color: #c0c0c0;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .pattern-target {
+            font-size: 0.8em;
+            color: #00ff88;
+            font-weight: 600;
+        }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
@@ -688,6 +1019,93 @@
             to {
                 opacity: 1;
                 transform: translateY(0);
+            }
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .early-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .corporate-action-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pattern-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title {
+                font-size: 1.1rem;
+                margin: 16px 0 12px 0;
+            }
+
+            .card-row {
+                font-size: 0.85em;
+            }
+
+            .highlight-row {
+                font-size: 0.8em;
+            }
+
+            .trading-advice-box {
+                padding: 10px;
+            }
+
+            .advice-text {
+                font-size: 0.8em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .early-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .corporate-action-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .pattern-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .early-card {
+                padding: 12px;
+                gap: 10px;
+            }
+
+            .corporate-card {
+                padding: 12px;
+            }
+
+            .card-title {
+                font-size: 1em;
+            }
+
+            .card-subtitle {
+                font-size: 0.8em;
+            }
+
+            .card-row {
+                font-size: 0.8em;
+            }
+
+            .highlight-row {
+                font-size: 0.75em;
+            }
+
+            .action-type {
+                font-size: 0.95em;
+            }
+
+            .action-timing {
+                font-size: 0.8em;
+            }
+
+            .action-details {
+                font-size: 0.8em;
             }
         }
 

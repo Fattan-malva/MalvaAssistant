@@ -939,34 +939,44 @@ function displayEarlyDetectionResults(stocks) {
     
     let html = `
     <div class="early-detection-section">
-        <h3>🕵️ EARLY BANDAR DETECTION OPPORTUNITIES</h3>
+        <h2 class="section-title">🕵️ EARLY BANDAR DETECTION OPPORTUNITIES</h2>
         <div class="early-grid">
     `;
     
     stocks.slice(0, 8).forEach(stock => {
+        const targetArray = stock.priceTargets || [];
+        const targets = targetArray.length >= 3 
+            ? `${targetArray[0]} → ${targetArray[1]} → ${targetArray[2]}`
+            : targetArray.join(' → ');
+        
         html += `
-        <div class="early-card ${stock.accumulationScore > 30 ? 'high-accumulation' : ''}">
-            <div class="stock-header">
-                <h4>${stock.symbol}</h4>
-                <span class="bandar-type">${stock.bandarType}</span>
+        <div class="early-card">
+            <div class="card-title">${stock.symbol}</div>
+            <div class="card-subtitle">${stock.bandarType}</div>
+            <div class="card-content">
+                <div class="card-row">
+                    <span class="label">Accumulation Score:</span>
+                    <strong>${stock.accumulationScore}</strong>
+                </div>
+                <div class="card-row">
+                    <span class="label">Catalyst:</span>
+                    <span>${stock.expectedCatalyst ? stock.expectedCatalyst : 'No catalyst detected'}</span>
+                </div>
             </div>
-            <div class="accumulation-score">
-                Accumulation Score: <strong>${stock.accumulationScore}</strong>
-            </div>
-            <div class="catalyst-info">
-                ${stock.expectedCatalyst || 'No catalyst detected'}
-            </div>
-            <div class="entry-info">
-                🎯 Early Entry: <strong>Rp ${stock.earlyEntryPrice || stock.price}</strong>
-            </div>
-            <div class="targets-info">
-                🚀 Targets: ${stock.priceTargets?.join(' → ') || 'N/A'}
-            </div>
-            <div class="exit-signal">
-                🚨 Exit When: ${stock.exitSignal}
-            </div>
-            <div class="risk-reward">
-                ⚖️ Risk/Reward: 1:${stock.riskReward || 'N/A'}
+            <div class="divider-thin"></div>
+            <div class="card-highlight">
+                <div class="highlight-row">
+                    <span>🎯 Early Entry: <strong>Rp ${stock.earlyEntryPrice || stock.price}</strong></span>
+                </div>
+                <div class="highlight-row">
+                    <span>🚀 Targets: ${targets}</span>
+                </div>
+                <div class="highlight-row">
+                    <span>🚨 Exit When: ${stock.exitSignal}</span>
+                </div>
+                <div class="highlight-row">
+                    <span>⚖️ Risk/Reward: 1:${stock.riskReward || 'N/A'}</span>
+                </div>
             </div>
         </div>
         `;
@@ -986,40 +996,47 @@ function displayCorporateActionResults(stocks) {
     
     let html = `
     <div class="corporate-action-section">
-        <h3>📰 SMART CORPORATE ACTION DETECTION</h3>
+        <h2 class="section-title">📰 SMART CORPORATE ACTION DETECTION</h2>
         <div class="corporate-action-grid">
     `;
     
     stocksWithActions.slice(0, 6).forEach(stock => {
         const actions = stock.corporateActions || [];
         const news = stock.newsSentiment || { sentiment: 'NEUTRAL', keywords: [] };
+        const action = actions[0];
+        
+        let sentimentColor = 'neutral';
+        if (news.sentiment === 'POSITIVE') sentimentColor = 'positive';
+        else if (news.sentiment === 'NEGATIVE') sentimentColor = 'negative';
         
         html += `
-        <div class="corporate-action-card ${news.sentiment === 'POSITIVE' ? 'positive-news' : news.sentiment === 'NEGATIVE' ? 'negative-news' : ''}">
-            <div class="corporate-header">
-                <h4>${stock.symbol}</h4>
-                <span class="news-sentiment ${news.sentiment.toLowerCase()}">${news.sentiment}</span>
+        <div class="corporate-card ${sentimentColor}">
+            <div class="card-header">
+                <div class="card-symbol">${stock.symbol}</div>
+                <div class="sentiment-badge ${sentimentColor}">${news.sentiment}</div>
             </div>
             
-            <div class="corporate-actions">
-                ${actions.map(action => `
-                <div class="corporate-item">
-                    <strong>${action.type.name}</strong>
-                    <span>${action.daysToEvent} hari menuju ${action.nextEvent}</span>
-                    <div class="impact-score">Impact: ${action.impactScore}</div>
-                    <div class="action-details">${action.details}</div>
-                </div>
-                `).join('')}
+            <div class="divider-thin"></div>
+            
+            <div class="corporate-content">
+                <div class="action-type">${action.type.name}</div>
+                <div class="action-timing">${action.daysToEvent} hari menuju ${action.nextEvent}</div>
+                <div class="action-impact">Impact: <strong>${action.impactScore}</strong></div>
+                <div class="action-details">${action.details}</div>
             </div>
             
             ${news.keywords.length > 0 ? `
-            <div class="news-keywords">
-                <strong>Market Sentiment:</strong> ${news.keywords.join(', ')}
+            <div class="sentiment-section">
+                <div class="sentiment-label">Market Sentiment:</div>
+                <div class="sentiment-keywords">${news.keywords.join(' • ')}</div>
             </div>
             ` : ''}
             
-            <div class="trading-advice">
-                <strong>🎯 Trading Advice:</strong> ${generateCorporateActionAdvice(actions, news)}
+            <div class="divider-thin"></div>
+            
+            <div class="trading-advice-box">
+                <strong>🎯 Trading Advice:</strong>
+                <div class="advice-text">${generateCorporateActionAdvice(actions, news)}</div>
             </div>
         </div>
         `;

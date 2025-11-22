@@ -56,5 +56,7 @@
 ## ⚡ Quickstart
 1. Clone repo:
 ```bash
-git https://github.com/Fattan-malva/MalvaAssistant.git
+git clone https://github.com/Fattan-malva/MalvaAssistant.git
 cd malvaassitant
+npm install
+npm start
