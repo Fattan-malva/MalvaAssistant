@@ -740,7 +740,6 @@ BERIKAN CONFIDENCE LEVEL:
             smartAlertHtml +
             '<div class="ai-analysis-section">' +
             '<div class="analysis-title">🤖 AI Analysis & Recommendations</div>' +
-            '<div class="analysis-subtitle">Detailed Trading Insights from Smart Pattern Detection</div>' +
             '<div class="analysis-result">' + formattedHtml + '</div>' +
             '</div>';
         
